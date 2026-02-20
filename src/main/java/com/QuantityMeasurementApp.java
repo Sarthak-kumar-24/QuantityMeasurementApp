@@ -3,6 +3,7 @@ package com;
 import java.util.Scanner;
 
 import com.measurement.Feet;
+import com.measurement.Inches;
 
 import service.EqualityService;
 
@@ -13,7 +14,7 @@ public class QuantityMeasurementApp {
 
 	public static void main(String[] args) {
 
-		Scanner sc = new Scanner(System.in);
+		Scanner scanner = new Scanner(System.in);
 		EqualityService equalityService = new EqualityService();
 
 		System.out.println("=== Quantity Measurement App ===");
@@ -22,10 +23,10 @@ public class QuantityMeasurementApp {
 
 		// User input
 		System.out.print("Enter first value in feet: ");
-		double firstValue = sc.nextDouble();
+		double firstValue = scanner.nextDouble();
 
 		System.out.print("Enter second value in feet: ");
-		double secondValue = sc.nextDouble();
+		double secondValue = scanner.nextDouble();
 
 		// Create Feet objects
 		Feet firstFeet = new Feet(firstValue);
@@ -34,7 +35,21 @@ public class QuantityMeasurementApp {
 		System.out.println("Result: "
 				+ (equalityService.areEqual(firstFeet, secondFeet) ? "Both are Equal" : "Both are not Equal"));
 
+		/* -------- INCHES EQUALITY (UC2) -------- */
+		System.out.println("\nUC2: Inches Measurement Equality");
 
-		sc.close();
+		System.out.print("Enter first value in inches: ");
+		double inch1 = scanner.nextDouble();
+
+		System.out.print("Enter second value in inches: ");
+		double inch2 = scanner.nextDouble();
+
+		Inches firstInch = new Inches(inch1);
+		Inches secondInch = new Inches(inch2);
+
+		System.out.println("Result: "
+				+ (equalityService.areEqual(firstInch, secondInch) ? "Both are Equal" : "Both are not Equal"));
+
+		scanner.close();
 	}
 }
