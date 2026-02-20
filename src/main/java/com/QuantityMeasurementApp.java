@@ -2,13 +2,13 @@ package com;
 
 import java.util.Scanner;
 
-import com.measurement.Feet;
-import com.measurement.Inches;
-
+import com.measurement.LengthUnit;
+import com.measurement.QuantityLength;
 import service.EqualityService;
 
 /**
- * QuantityMeasurementApp UC1: Feet measurement equality
+ * UC3: Quantity Measurement Application - Uses generic QuantityLength - Takes
+ * user input - Supports cross-unit equality
  */
 public class QuantityMeasurementApp {
 
@@ -17,39 +17,47 @@ public class QuantityMeasurementApp {
 		Scanner scanner = new Scanner(System.in);
 		EqualityService equalityService = new EqualityService();
 
-		System.out.println("=== Quantity Measurement App ===");
-		/* --------------- FEET EQUALITY ---------------- */
-		System.out.println("UC1: Feet Measurement Equality\n");
+		System.out.println("=== Quantity Measurement App (UC3) ===");
 
-		// User input
-		System.out.print("Enter first value in feet: ");
-		double firstValue = scanner.nextDouble();
+		try {
+			// -------- First Quantity --------
+			System.out.print("Enter first value: ");
+			double value1 = scanner.nextDouble();
 
-		System.out.print("Enter second value in feet: ");
-		double secondValue = scanner.nextDouble();
+			System.out.print("Enter first unit (FEET / INCH): ");
+			String unit1Input = scanner.next();
 
-		// Create Feet objects
-		Feet firstFeet = new Feet(firstValue);
-		Feet secondFeet = new Feet(secondValue);
+			// -------- Second Quantity --------
+			System.out.print("Enter second value: ");
+			double value2 = scanner.nextDouble();
 
-		System.out.println("Result: "
-				+ (equalityService.areEqual(firstFeet, secondFeet) ? "Both are Equal" : "Both are not Equal"));
+			System.out.print("Enter second unit (FEET / INCH): ");
+			String unit2Input = scanner.next();
 
-		/* -------- INCHES EQUALITY (UC2) -------- */
-		System.out.println("\nUC2: Inches Measurement Equality");
+			// Convert input to enum safely
+			LengthUnit unit1 = LengthUnit.fromString(unit1Input);
+			LengthUnit unit2 = LengthUnit.fromString(unit2Input);
 
-		System.out.print("Enter first value in inches: ");
-		double inch1 = scanner.nextDouble();
+			// Create Quantity objects
+			QuantityLength quantity1 = new QuantityLength(value1, unit1);
 
-		System.out.print("Enter second value in inches: ");
-		double inch2 = scanner.nextDouble();
+			QuantityLength quantity2 = new QuantityLength(value2, unit2);
 
-		Inches firstInch = new Inches(inch1);
-		Inches secondInch = new Inches(inch2);
+			// Equality check
+			boolean result = equalityService.areEqual(quantity1, quantity2);
 
-		System.out.println("Result: "
-				+ (equalityService.areEqual(firstInch, secondInch) ? "Both are Equal" : "Both are not Equal"));
+			// -------- Output --------
+			System.out.println("\n--- Result ---");
+			if (result) {
+				System.out.println("The two quantities are EQUAL.");
+			} else {
+				System.out.println("The two quantities are NOT EQUAL.");
+			}
 
-		scanner.close();
+		} catch (IllegalArgumentException ex) {
+			System.out.println("Invalid unit entered. Please use FEET or INCH.");
+		} finally {
+			scanner.close();
+		}
 	}
 }
