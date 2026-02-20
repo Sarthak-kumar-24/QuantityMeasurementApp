@@ -1,52 +1,73 @@
 package com;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 
-import com.measurement.Feet;
+import com.measurement.LengthUnit;
+import com.measurement.QuantityLength;
 
 import service.EqualityService;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * UC3 Test Class
+ * Tests equality using generic QuantityLength
+ */
 class QuantityMeasurementAppTest {
 
 	private final EqualityService equalityService = new EqualityService();
 
 	@Test
 	void testFeetEquality_SameValue() {
-		Feet f1 = new Feet(1.0);
-		Feet f2 = new Feet(1.0);
+		QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
+		QuantityLength q2 = new QuantityLength(1.0, LengthUnit.FEET);
 
-		assertTrue(equalityService.areEqual(f1, f2));
+		assertTrue(equalityService.areEqual(q1, q2));
 	}
 
 	@Test
 	void testFeetEquality_DifferentValue() {
-		Feet f1 = new Feet(1.0);
-		Feet f2 = new Feet(2.0);
+		QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
+		QuantityLength q2 = new QuantityLength(2.0, LengthUnit.FEET);
 
-		assertFalse(equalityService.areEqual(f1, f2));
+		assertFalse(equalityService.areEqual(q1, q2));
 	}
 
 	@Test
-	void testFeetEquality_NullComparison() {
-		Feet f1 = new Feet(1.0);
+	void testInchEquality_SameValue() {
+		QuantityLength q1 = new QuantityLength(10.0, LengthUnit.INCH);
+		QuantityLength q2 = new QuantityLength(10.0, LengthUnit.INCH);
 
-		assertFalse(equalityService.areEqual(f1, null));
+		assertTrue(equalityService.areEqual(q1, q2));
 	}
 
 	@Test
-	void testFeetEquality_DifferentClass() {
-		Feet f1 = new Feet(1.0);
-		String other = "1.0";
+	void testCrossUnitEquality_FeetAndInch() {
+		QuantityLength feet = new QuantityLength(1.0, LengthUnit.FEET);
+		QuantityLength inch = new QuantityLength(12.0, LengthUnit.INCH);
 
-		assertFalse(equalityService.areEqual(f1, other));
+		assertTrue(equalityService.areEqual(feet, inch));
 	}
 
 	@Test
-	void testFeetEquality_SameReference() {
-		Feet f1 = new Feet(1.0);
+	void testNullComparison() {
+		QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
 
-		assertTrue(equalityService.areEqual(f1, f1));
+		assertFalse(equalityService.areEqual(q1, null));
+	}
+
+	@Test
+	void testDifferentClassComparison() {
+		QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
+		String other = "1 FEET";
+
+		assertFalse(equalityService.areEqual(q1, other));
+	}
+
+	@Test
+	void testSameReference() {
+		QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
+
+		assertTrue(equalityService.areEqual(q1, q1));
 	}
 }
