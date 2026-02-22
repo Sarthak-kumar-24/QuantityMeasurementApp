@@ -2,7 +2,7 @@ package com.measurement;
 
 /**
  * Abstract base class for all measurements.
- * Enforces immutability and value-based equality contract.
+ * Enforces immutability and value validation.
  */
 public abstract class Measurement {
 
