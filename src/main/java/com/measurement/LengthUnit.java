@@ -2,55 +2,62 @@ package com.measurement;
 
 /**
  * Enum representing supported length units.
- * All conversion factors are defined relative to BASE UNIT = INCHES.
+ * Base unit = INCHES
  */
 public enum LengthUnit {
 
-    INCHES(1.0),          // Base unit
-    FEET(12.0),           // 1 ft = 12 inches
-    YARDS(36.0),          // 1 yd = 36 inches
-    CENTIMETERS(0.393701); // 1 cm = 0.393701 inches
+    INCHES(1.0),
+    FEET(12.0),
+    YARDS(36.0),
+    CENTIMETERS(0.393701);
 
-    private final double conversionFactorToInches;
+    private final double toInchesFactor;
 
-    LengthUnit(double conversionFactorToInches) {
-        this.conversionFactorToInches = conversionFactorToInches;
+    LengthUnit(double toInchesFactor) {
+        this.toInchesFactor = toInchesFactor;
     }
 
     /**
-     * Converts a given value of this unit to inches.
+     * Convert a value of this unit to inches.
      */
     public double toInches(double value) {
-        return value * conversionFactorToInches;
+        return value * toInchesFactor;
     }
 
     /**
-     * Converts user input string to LengthUnit enum.
+     * Convert inches to this unit.
+     */
+    public double fromInches(double inches) {
+        return inches / toInchesFactor;
+    }
+
+    /**
+     * Safe parsing from user input.
      */
     public static LengthUnit fromString(String unit) {
         if (unit == null) {
             throw new IllegalArgumentException("Unit cannot be null");
         }
 
-        switch (unit.toLowerCase()) {
+        switch (unit.trim().toLowerCase()) {
+            case "in":
             case "inch":
             case "inches":
-            case "in":
                 return INCHES;
 
-            case "feet":
-            case "foot":
             case "ft":
+            case "foot":
+            case "feet":
                 return FEET;
 
+            case "yd":
             case "yard":
             case "yards":
-            case "yd":
                 return YARDS;
 
+            case "cm":
             case "centimeter":
             case "centimeters":
-            case "cm":
                 return CENTIMETERS;
 
             default:
