@@ -7,7 +7,11 @@ import com.measurement.QuantityLength;
 import service.EqualityService;
 
 /**
- * UC6: Equality + Conversion + Addition
+ * UC6 + UC7:
+ * - Equality
+ * - Conversion
+ * - Addition (implicit target)
+ * - Addition (explicit target unit)
  */
 public class QuantityMeasurementApp {
 
@@ -16,7 +20,7 @@ public class QuantityMeasurementApp {
         Scanner scanner = new Scanner(System.in);
         EqualityService equalityService = new EqualityService();
 
-        System.out.println("=== Quantity Measurement App (UC6) ===");
+        System.out.println("=== Quantity Measurement App (UC7) ===");
         System.out.println("Units: ft, in, yd, cm\n");
 
         // First quantity
@@ -36,18 +40,42 @@ public class QuantityMeasurementApp {
         QuantityLength q1 = new QuantityLength(v1, u1);
         QuantityLength q2 = new QuantityLength(v2, u2);
 
+        /* ===============================
+           UC3 / UC4 – Equality
+           =============================== */
         System.out.println("\n--- Equality ---");
         System.out.println(q1 + " == " + q2 + " ? "
                 + equalityService.areEqual(q1, q2));
 
-        System.out.println("\n--- Addition (UC6) ---");
-        QuantityLength sum = q1.add(q2);
-        System.out.println(q1 + " + " + q2 + " = " + sum);
+        /* ===============================
+           UC6 – Addition (implicit target)
+           =============================== */
+        System.out.println("\n--- Addition (UC6 : implicit target) ---");
+        QuantityLength sumImplicit = q1.add(q2);
+        System.out.println(q1 + " + " + q2 + " = " + sumImplicit);
 
+        /* ===============================
+           UC7 – Addition (explicit target)
+           =============================== */
+        System.out.println("\n--- Addition (UC7 : explicit target) ---");
+        System.out.print("Enter target unit for addition: ");
+        LengthUnit targetAddUnit = LengthUnit.fromString(scanner.nextLine());
+
+        QuantityLength sumExplicit =
+                QuantityLength.add(q1, q2, targetAddUnit);
+
+        System.out.println(
+                q1 + " + " + q2 + " = " + sumExplicit
+        );
+
+        /* ===============================
+           UC5 – Conversion
+           =============================== */
         System.out.println("\n--- Conversion (UC5) ---");
         System.out.print("Convert first quantity to unit: ");
-        LengthUnit target = LengthUnit.fromString(scanner.nextLine());
-        System.out.println(q1 + " = " + q1.convertTo(target));
+        LengthUnit targetConversion = LengthUnit.fromString(scanner.nextLine());
+
+        System.out.println(q1 + " = " + q1.convertTo(targetConversion));
 
         scanner.close();
     }
