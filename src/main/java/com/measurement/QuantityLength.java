@@ -3,44 +3,85 @@ package com.measurement;
 import java.util.Objects;
 
 /**
- * Generic class representing a length quantity with unit.
- * This class is DRY, immutable, and unit-agnostic.
+ * Immutable value object representing a length.
+ * 
+ * UC5 Enhancements:
+ * - Unit-to-unit conversion
+ * - Equality still works exactly like UC4
  */
-public final class QuantityLength {
+public final class QuantityLength extends Measurement {
 
-    private final double value;
     private final LengthUnit unit;
 
     public QuantityLength(double value, LengthUnit unit) {
+        super(value);
         if (unit == null) {
             throw new IllegalArgumentException("Unit cannot be null");
         }
-        this.value = value;
         this.unit = unit;
     }
 
+    public LengthUnit getUnit() {
+        return unit;
+    }
+
     /**
-     * Converts this quantity to base unit (inches).
+     * Convert this quantity to inches (base unit).
      */
     private double toBaseUnit() {
         return unit.toInches(value);
     }
 
     /**
-     * Value-based equality comparison.
+     * UC5 FEATURE:
+     * Convert this QuantityLength to another unit.
+     * Returns a NEW object (immutability preserved).
+     */
+    public QuantityLength convertTo(LengthUnit targetUnit) {
+        if (targetUnit == null) {
+            throw new IllegalArgumentException("Target unit cannot be null");
+        }
+
+        double inches = toBaseUnit();
+        double convertedValue = targetUnit.fromInches(inches);
+
+        return new QuantityLength(convertedValue, targetUnit);
+    }
+
+    /**
+     * Static conversion API (raw values).
+     */
+    public static double convert(
+            double value,
+            LengthUnit sourceUnit,
+            LengthUnit targetUnit
+    ) {
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException("Value must be finite");
+        }
+        if (sourceUnit == null || targetUnit == null) {
+            throw new IllegalArgumentException("Units cannot be null");
+        }
+
+        double inches = sourceUnit.toInches(value);
+        return targetUnit.fromInches(inches);
+    }
+
+    /**
+     * Equality based on physical length.
      */
     @Override
     public boolean equals(Object obj) {
 
-        // Same reference
         if (this == obj) return true;
-
-        // Null or different class
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (!(obj instanceof QuantityLength)) return false;
 
         QuantityLength other = (QuantityLength) obj;
 
-        return Double.compare(this.toBaseUnit(), other.toBaseUnit()) == 0;
+        return Double.compare(
+                this.toBaseUnit(),
+                other.toBaseUnit()
+        ) == 0;
     }
 
     @Override
