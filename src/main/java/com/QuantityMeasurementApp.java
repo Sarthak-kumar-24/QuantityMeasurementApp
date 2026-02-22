@@ -7,8 +7,7 @@ import com.measurement.QuantityLength;
 import service.EqualityService;
 
 /**
- * UC4: Extended Unit Support
- * Supports Feet, Inches, Yards, and Centimeters.
+ * UC5: Unit-to-Unit Conversion + Equality
  */
 public class QuantityMeasurementApp {
 
@@ -17,36 +16,39 @@ public class QuantityMeasurementApp {
         Scanner scanner = new Scanner(System.in);
         EqualityService equalityService = new EqualityService();
 
-        System.out.println("=== Quantity Measurement App (UC4) ===");
+        System.out.println("=== Quantity Measurement App (UC5) ===");
+        System.out.println("Units: ft, in, yd, cm\n");
 
-        // User input
-        System.out.print("Enter first value: ");
-        double value1 = scanner.nextDouble();
+        System.out.print("Enter value: ");
+        double value = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.print("Enter first unit (ft, in, yd, cm): ");
-        String unitInput1 = scanner.nextLine();
+        System.out.print("Enter source unit: ");
+        LengthUnit source = LengthUnit.fromString(scanner.nextLine());
 
-        System.out.print("Enter second value: ");
+        System.out.print("Enter target unit: ");
+        LengthUnit target = LengthUnit.fromString(scanner.nextLine());
+
+        // UC5 Conversion
+        QuantityLength original = new QuantityLength(value, source);
+        QuantityLength converted = original.convertTo(target);
+
+        System.out.println("\n--- Conversion ---");
+        System.out.println(original + " = " + converted);
+
+        // Equality demo
+        System.out.print("\nEnter second value for equality check: ");
         double value2 = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.print("Enter second unit (ft, in, yd, cm): ");
-        String unitInput2 = scanner.nextLine();
+        System.out.print("Enter unit: ");
+        LengthUnit unit2 = LengthUnit.fromString(scanner.nextLine());
 
-        // Convert to enum
-        LengthUnit unit1 = LengthUnit.fromString(unitInput1);
-        LengthUnit unit2 = LengthUnit.fromString(unitInput2);
-
-        // Create quantities
-        QuantityLength q1 = new QuantityLength(value1, unit1);
         QuantityLength q2 = new QuantityLength(value2, unit2);
 
-        // Equality check
-        boolean result = equalityService.areEqual(q1, q2);
-
-        System.out.println("\n--- Result ---");
-        System.out.println(q1 + " == " + q2 + " ? " + result);
+        System.out.println("\n--- Equality ---");
+        System.out.println(original + " == " + q2 + " ? "
+                + equalityService.areEqual(original, q2));
 
         scanner.close();
     }
