@@ -17,17 +17,14 @@ public enum LengthUnit {
         this.toInchesFactor = toInchesFactor;
     }
 
-    /** Convert value to base unit (inches) */
     public double toInches(double value) {
         return value * toInchesFactor;
     }
 
-    /** Convert from base unit (inches) */
     public double fromInches(double inches) {
         return inches / toInchesFactor;
     }
 
-    /** Safe parsing from user input */
     public static LengthUnit fromString(String unit) {
         if (unit == null) {
             throw new IllegalArgumentException("Unit cannot be null");
