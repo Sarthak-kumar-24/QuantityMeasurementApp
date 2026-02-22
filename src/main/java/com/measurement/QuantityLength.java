@@ -3,15 +3,13 @@ package com.measurement;
 import java.util.Objects;
 
 /**
- * Immutable value object representing a length.
- * 
- * UC5 Enhancements:
- * - Unit-to-unit conversion
- * - Equality still works exactly like UC4
+ * Generic, immutable length quantity.
+ * Supports equality, conversion, and addition.
  */
 public final class QuantityLength extends Measurement {
 
     private final LengthUnit unit;
+    private static final double EPSILON = 1e-6;
 
     public QuantityLength(double value, LengthUnit unit) {
         super(value);
@@ -25,63 +23,22 @@ public final class QuantityLength extends Measurement {
         return unit;
     }
 
-    /**
-     * Convert this quantity to inches (base unit).
-     */
+    /* ===============================
+       UC3 / UC4 : EQUALITY
+       =============================== */
+
     private double toBaseUnit() {
         return unit.toInches(value);
     }
 
-    /**
-     * UC5 FEATURE:
-     * Convert this QuantityLength to another unit.
-     * Returns a NEW object (immutability preserved).
-     */
-    public QuantityLength convertTo(LengthUnit targetUnit) {
-        if (targetUnit == null) {
-            throw new IllegalArgumentException("Target unit cannot be null");
-        }
-
-        double inches = toBaseUnit();
-        double convertedValue = targetUnit.fromInches(inches);
-
-        return new QuantityLength(convertedValue, targetUnit);
-    }
-
-    /**
-     * Static conversion API (raw values).
-     */
-    public static double convert(
-            double value,
-            LengthUnit sourceUnit,
-            LengthUnit targetUnit
-    ) {
-        if (!Double.isFinite(value)) {
-            throw new IllegalArgumentException("Value must be finite");
-        }
-        if (sourceUnit == null || targetUnit == null) {
-            throw new IllegalArgumentException("Units cannot be null");
-        }
-
-        double inches = sourceUnit.toInches(value);
-        return targetUnit.fromInches(inches);
-    }
-
-    /**
-     * Equality based on physical length.
-     */
     @Override
     public boolean equals(Object obj) {
 
         if (this == obj) return true;
-        if (!(obj instanceof QuantityLength)) return false;
+        if (obj == null || getClass() != obj.getClass()) return false;
 
         QuantityLength other = (QuantityLength) obj;
-
-        return Double.compare(
-                this.toBaseUnit(),
-                other.toBaseUnit()
-        ) == 0;
+        return Math.abs(this.toBaseUnit() - other.toBaseUnit()) < EPSILON;
     }
 
     @Override
@@ -92,5 +49,59 @@ public final class QuantityLength extends Measurement {
     @Override
     public String toString() {
         return value + " " + unit;
+    }
+
+    /* ===============================
+       UC5 : CONVERSION
+       =============================== */
+
+    /** Static conversion API */
+    public static double convert(double value,
+                                 LengthUnit source,
+                                 LengthUnit target) {
+
+        if (source == null || target == null) {
+            throw new IllegalArgumentException("Units cannot be null");
+        }
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException("Value must be finite");
+        }
+
+        double inches = source.toInches(value);
+        return target.fromInches(inches);
+    }
+
+    /** Instance-based conversion */
+    public QuantityLength convertTo(LengthUnit targetUnit) {
+        double convertedValue = convert(this.value, this.unit, targetUnit);
+        return new QuantityLength(convertedValue, targetUnit);
+    }
+
+    /* ===============================
+       UC6 : ADDITION
+       =============================== */
+
+    /** Add two quantities, result in unit of first operand */
+    public QuantityLength add(QuantityLength other) {
+
+        if (other == null) {
+            throw new IllegalArgumentException("Second operand cannot be null");
+        }
+
+        double sumInInches =
+                this.toBaseUnit() + other.toBaseUnit();
+
+        double resultValue =
+                this.unit.fromInches(sumInInches);
+
+        return new QuantityLength(resultValue, this.unit);
+    }
+
+    /** Static addition API (optional overload) */
+    public static QuantityLength add(QuantityLength a, QuantityLength b) {
+        if (a == null) {
+            throw new IllegalArgumentException("First operand cannot be null");
+        }
+        return a.add(b);
     }
 }
