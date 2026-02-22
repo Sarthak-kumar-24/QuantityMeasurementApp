@@ -1,13 +1,15 @@
 package service;
 
 /**
- * EqualityService Provides equality comparison for measurement objects.
+ * Generic equality service.
  */
 public class EqualityService {
 
-	// Generic equality check.
+    public boolean areEqual(Object o1, Object o2) {
 
-	public boolean areEqual(Object first, Object second) {
-		return first != null && first.equals(second);
-	}
+        if (o1 == o2) return true;
+        if (o1 == null || o2 == null) return false;
+
+        return o1.equals(o2);
+    }
 }
