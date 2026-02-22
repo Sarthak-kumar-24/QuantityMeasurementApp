@@ -17,23 +17,17 @@ public enum LengthUnit {
         this.toInchesFactor = toInchesFactor;
     }
 
-    /**
-     * Convert a value of this unit to inches.
-     */
+    /** Convert value to base unit (inches) */
     public double toInches(double value) {
         return value * toInchesFactor;
     }
 
-    /**
-     * Convert inches to this unit.
-     */
+    /** Convert from base unit (inches) */
     public double fromInches(double inches) {
         return inches / toInchesFactor;
     }
 
-    /**
-     * Safe parsing from user input.
-     */
+    /** Safe parsing from user input */
     public static LengthUnit fromString(String unit) {
         if (unit == null) {
             throw new IllegalArgumentException("Unit cannot be null");
@@ -44,22 +38,18 @@ public enum LengthUnit {
             case "inch":
             case "inches":
                 return INCHES;
-
             case "ft":
             case "foot":
             case "feet":
                 return FEET;
-
             case "yd":
             case "yard":
             case "yards":
                 return YARDS;
-
             case "cm":
             case "centimeter":
             case "centimeters":
                 return CENTIMETERS;
-
             default:
                 throw new IllegalArgumentException("Unsupported unit: " + unit);
         }
