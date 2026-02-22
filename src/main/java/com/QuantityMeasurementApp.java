@@ -7,7 +7,7 @@ import com.measurement.QuantityLength;
 import service.EqualityService;
 
 /**
- * UC5: Unit-to-Unit Conversion + Equality
+ * UC6: Equality + Conversion + Addition
  */
 public class QuantityMeasurementApp {
 
@@ -16,39 +16,38 @@ public class QuantityMeasurementApp {
         Scanner scanner = new Scanner(System.in);
         EqualityService equalityService = new EqualityService();
 
-        System.out.println("=== Quantity Measurement App (UC5) ===");
+        System.out.println("=== Quantity Measurement App (UC6) ===");
         System.out.println("Units: ft, in, yd, cm\n");
 
-        System.out.print("Enter value: ");
-        double value = scanner.nextDouble();
+        // First quantity
+        System.out.print("Enter first value: ");
+        double v1 = scanner.nextDouble();
         scanner.nextLine();
+        System.out.print("Enter first unit: ");
+        LengthUnit u1 = LengthUnit.fromString(scanner.nextLine());
 
-        System.out.print("Enter source unit: ");
-        LengthUnit source = LengthUnit.fromString(scanner.nextLine());
-
-        System.out.print("Enter target unit: ");
-        LengthUnit target = LengthUnit.fromString(scanner.nextLine());
-
-        // UC5 Conversion
-        QuantityLength original = new QuantityLength(value, source);
-        QuantityLength converted = original.convertTo(target);
-
-        System.out.println("\n--- Conversion ---");
-        System.out.println(original + " = " + converted);
-
-        // Equality demo
-        System.out.print("\nEnter second value for equality check: ");
-        double value2 = scanner.nextDouble();
+        // Second quantity
+        System.out.print("Enter second value: ");
+        double v2 = scanner.nextDouble();
         scanner.nextLine();
+        System.out.print("Enter second unit: ");
+        LengthUnit u2 = LengthUnit.fromString(scanner.nextLine());
 
-        System.out.print("Enter unit: ");
-        LengthUnit unit2 = LengthUnit.fromString(scanner.nextLine());
-
-        QuantityLength q2 = new QuantityLength(value2, unit2);
+        QuantityLength q1 = new QuantityLength(v1, u1);
+        QuantityLength q2 = new QuantityLength(v2, u2);
 
         System.out.println("\n--- Equality ---");
-        System.out.println(original + " == " + q2 + " ? "
-                + equalityService.areEqual(original, q2));
+        System.out.println(q1 + " == " + q2 + " ? "
+                + equalityService.areEqual(q1, q2));
+
+        System.out.println("\n--- Addition (UC6) ---");
+        QuantityLength sum = q1.add(q2);
+        System.out.println(q1 + " + " + q2 + " = " + sum);
+
+        System.out.println("\n--- Conversion (UC5) ---");
+        System.out.print("Convert first quantity to unit: ");
+        LengthUnit target = LengthUnit.fromString(scanner.nextLine());
+        System.out.println(q1 + " = " + q1.convertTo(target));
 
         scanner.close();
     }
