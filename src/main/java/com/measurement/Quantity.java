@@ -1,119 +1,161 @@
 package com.measurement;
 
 import java.util.Objects;
+import java.util.function.DoubleBinaryOperator;
 
-/**
- * UC10: Generic Quantity class
- */
 public final class Quantity<U extends IMeasurable> extends Measurement {
 
-	private static final double EPSILON = 1e-6;
-	private final U unit;
+    private final U unit;
 
-	public Quantity(double value, U unit) {
-		super(value);
-		if (unit == null) {
-			throw new IllegalArgumentException("Unit cannot be null");
-		}
-		this.unit = unit;
-	}
+    /* ===============================
+       Arithmetic Operation Enum
+       =============================== */
+    private enum ArithmeticOperation {
+        ADD((a, b) -> a + b),
+        SUBTRACT((a, b) -> a - b),
+        DIVIDE((a, b) -> {
+            if (b == 0.0) {
+                throw new ArithmeticException("Divide by zero");
+            }
+            return a / b;
+        });
 
-	public U getUnit() {
-		return unit;
-	}
+        private final DoubleBinaryOperator operator;
 
-	/* Conversion */
-	public Quantity<U> convertTo(U target) {
-		if (target == null) {
-			throw new IllegalArgumentException("Target unit cannot be null");
-		}
-		double base = unit.convertToBaseUnit(value);
-		return new Quantity<>(target.convertFromBaseUnit(base), target);
-	}
+        ArithmeticOperation(DoubleBinaryOperator operator) {
+            this.operator = operator;
+        }
 
-	/* Addition (implicit target) */
-	public Quantity<U> add(Quantity<U> other) {
-		return add(this, other, this.unit);
-	}
+        double compute(double a, double b) {
+            return operator.applyAsDouble(a, b);
+        }
+    }
 
-	/* Addition (explicit target) */
-	public static <U extends IMeasurable> Quantity<U> add(Quantity<U> q1, Quantity<U> q2, U target) {
-		validateSameCategory(q1, q2, target);
+    public Quantity(double value, U unit) {
+        super(value);
+        if (unit == null) {
+            throw new IllegalArgumentException("Unit cannot be null");
+        }
+        this.unit = unit;
+    }
 
-		double baseSum = q1.unit.convertToBaseUnit(q1.value) + q2.unit.convertToBaseUnit(q2.value);
+    public U getUnit() {
+        return unit;
+    }
 
-		return new Quantity<>(target.convertFromBaseUnit(baseSum), target);
-	}
-	/* ===================== Subtraction (UC12) ===================== */
+    /* ===============================
+       CENTRALIZED VALIDATION
+       =============================== */
+    private void validateOperands(Quantity<U> other, boolean targetRequired, U targetUnit) {
+        if (other == null) {
+            throw new IllegalArgumentException("Operand cannot be null");
+        }
+        if (!unit.getClass().equals(other.unit.getClass())) {
+            throw new IllegalArgumentException("Cross-category operation not allowed");
+        }
+        if (!Double.isFinite(other.value)) {
+            throw new IllegalArgumentException("Operand value must be finite");
+        }
+        if (targetRequired && targetUnit == null) {
+            throw new IllegalArgumentException("Target unit cannot be null");
+        }
+    }
 
-	public Quantity<U> subtract(Quantity<U> other) {
-		return subtract(this, other, this.unit);
-	}
+    /* ===============================
+       CENTRALIZED ARITHMETIC
+       =============================== */
+    private double performBaseArithmetic(
+            Quantity<U> other,
+            ArithmeticOperation operation
+    ) {
+        double baseA = unit.convertToBaseUnit(value);
+        double baseB = other.unit.convertToBaseUnit(other.value);
+        return operation.compute(baseA, baseB);
+    }
 
-	public static <U extends IMeasurable> Quantity<U> subtract(Quantity<U> q1, Quantity<U> q2, U target) {
-		validateSameCategory(q1, q2, target);
+    private double roundTwoDecimals(double v) {
+        return Math.round(v * 100.0) / 100.0;
+    }
 
-		double baseResult = q1.unit.convertToBaseUnit(q1.value) - q2.unit.convertToBaseUnit(q2.value);
+    /* ===============================
+       ADDITION
+       =============================== */
+    public Quantity<U> add(Quantity<U> other) {
+        return add(other, unit);
+    }
 
-		return new Quantity<>(target.convertFromBaseUnit(baseResult), target);
-	}
+    public Quantity<U> add(Quantity<U> other, U targetUnit) {
+        validateOperands(other, true, targetUnit);
+        double baseResult = performBaseArithmetic(other, ArithmeticOperation.ADD);
+        double result = targetUnit.convertFromBaseUnit(baseResult);
+        return new Quantity<>(roundTwoDecimals(result), targetUnit);
+    }
 
-	/* ===================== Division (UC12) ===================== */
+    /* ===============================
+       SUBTRACTION
+       =============================== */
+    public Quantity<U> subtract(Quantity<U> other) {
+        return subtract(other, unit);
+    }
 
-	public double divide(Quantity<U> other) {
-		if (other == null) {
-			throw new IllegalArgumentException("Other quantity cannot be null");
-		}
-		if (!unit.getClass().equals(other.unit.getClass())) {
-			throw new IllegalArgumentException("Cross-category division not allowed");
-		}
+    public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
+        validateOperands(other, true, targetUnit);
+        double baseResult = performBaseArithmetic(other, ArithmeticOperation.SUBTRACT);
+        double result = targetUnit.convertFromBaseUnit(baseResult);
+        return new Quantity<>(roundTwoDecimals(result), targetUnit);
+    }
 
-		double divisor = other.unit.convertToBaseUnit(other.value);
-		if (Math.abs(divisor) < EPSILON) {
-			throw new ArithmeticException("Division by zero");
-		}
+    /* ===============================
+       DIVISION
+       =============================== */
+    public double divide(Quantity<U> other) {
+        validateOperands(other, false, null);
+        return performBaseArithmetic(other, ArithmeticOperation.DIVIDE);
+    }
 
-		double dividend = unit.convertToBaseUnit(value);
-		return dividend / divisor;
-	}
+    /* ===============================
+       CONVERSION
+       =============================== */
+    public Quantity<U> convertTo(U targetUnit) {
+        if (targetUnit == null) {
+            throw new IllegalArgumentException("Target unit cannot be null");
+        }
+        double base = unit.convertToBaseUnit(value);
+        double converted = targetUnit.convertFromBaseUnit(base);
+        return new Quantity<>(converted, targetUnit);
+    }
 
-	/* ===================== Equality ===================== */
+    /* ===============================
+       STATIC ADD
+       =============================== */
+    public static <U extends IMeasurable>
+    Quantity<U> add(Quantity<U> a, Quantity<U> b, U targetUnit) {
+        return a.add(b, targetUnit);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!(obj instanceof Quantity<?> other))
-			return false;
-		if (!unit.getClass().equals(other.unit.getClass()))
-			return false;
+    /* ===============================
+       EQUALITY
+       =============================== */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Quantity<?> other)) return false;
+        if (!unit.getClass().equals(other.unit.getClass())) return false;
 
-		double b1 = unit.convertToBaseUnit(value);
-		double b2 = ((IMeasurable) other.unit).convertToBaseUnit(other.value);
+        double a = unit.convertToBaseUnit(value);
+        double b = ((IMeasurable) other.unit).convertToBaseUnit(other.value);
 
-		return Math.abs(b1 - b2) < EPSILON;
-	}
+        return Math.abs(a - b) < 1e-6;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(unit.getClass(), Math.round(unit.convertToBaseUnit(value) / EPSILON));
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(unit.getClass(),
+                Math.round(unit.convertToBaseUnit(value) * 1e6));
+    }
 
-	@Override
-	public String toString() {
-		return "Quantity(" + value + ", " + unit.getUnitName() + ")";
-	}
-	/* ===================== Helpers ===================== */
-
-	private static <U extends IMeasurable> void validateSameCategory(Quantity<U> q1, Quantity<U> q2, U target) {
-		if (q1 == null || q2 == null) {
-			throw new IllegalArgumentException("Operands cannot be null");
-		}
-		if (target == null) {
-			throw new IllegalArgumentException("Target unit cannot be null");
-		}
-		if (!q1.unit.getClass().equals(q2.unit.getClass()) || !q1.unit.getClass().equals(target.getClass())) {
-			throw new IllegalArgumentException("Cross-category operation not allowed");
-		}
-	}
+    @Override
+    public String toString() {
+        return "Quantity(" + value + ", " + unit.getUnitName() + ")";
+    }
 }
