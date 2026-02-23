@@ -108,6 +108,44 @@ public class QuantityMeasurementApp {
                         w1.convertTo(wConv));
                 break;
 
+                /* ===============================
+                VOLUME (UC11)
+                =============================== */
+             case 3:
+                 System.out.println("\n--- Volume Measurement ---");
+                 System.out.println("Units: l, ml, gal");
+
+                 System.out.print("Enter first value: ");
+                 double vv1 = scanner.nextDouble();
+                 scanner.nextLine();
+                 System.out.print("Enter first unit: ");
+                 VolumeUnit vu1 = VolumeUnit.fromString(scanner.nextLine());
+
+                 System.out.print("Enter second value: ");
+                 double vv2 = scanner.nextDouble();
+                 scanner.nextLine();
+                 System.out.print("Enter second unit: ");
+                 VolumeUnit vu2 = VolumeUnit.fromString(scanner.nextLine());
+
+                 Quantity<VolumeUnit> v1 = new Quantity<>(vv1, vu1);
+                 Quantity<VolumeUnit> v2 = new Quantity<>(vv2, vu2);
+
+                 System.out.println("\nEquality: " +
+                         equalityService.areEqual(v1, v2));
+
+                 System.out.println("Addition (implicit): " +
+                         v1.add(v2));
+
+                 System.out.print("Target unit for addition: ");
+                 VolumeUnit vTarget = VolumeUnit.fromString(scanner.nextLine());
+                 System.out.println("Addition (explicit): " +
+                         Quantity.add(v1, v2, vTarget));
+
+                 System.out.print("Convert first quantity to: ");
+                 VolumeUnit vConv = VolumeUnit.fromString(scanner.nextLine());
+                 System.out.println("Conversion: " +
+                         v1.convertTo(vConv));
+                 break;
             default:
                 System.out.println("Invalid category selection");
         }
