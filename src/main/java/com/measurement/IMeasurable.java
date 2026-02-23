@@ -1,0 +1,19 @@
+package com.measurement;
+
+/**
+ * UC10: Common interface for all measurable units
+ */
+public interface IMeasurable {
+
+    double getConversionFactor();
+
+    default double convertToBaseUnit(double value) {
+        return value * getConversionFactor();
+    }
+
+    default double convertFromBaseUnit(double baseValue) {
+        return baseValue / getConversionFactor();
+    }
+
+    String getUnitName();
+}
