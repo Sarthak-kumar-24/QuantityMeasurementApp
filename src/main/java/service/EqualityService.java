@@ -7,7 +7,7 @@ public class EqualityService {
         if (o1 == null || o2 == null) return false;
 
         if (!o1.getClass().equals(o2.getClass())) {
-            return false; // Length ≠ Weight
+            return false; // Length != Weight
         }
         return o1.equals(o2);
     }
