@@ -1,44 +1,47 @@
 package com.measurement;
 
 /**
- * Enum representing supported length units.
- * Base unit = INCHES
+ * UC8: Standalone LengthUnit enum
+ * Base unit = FEET
  */
 public enum LengthUnit {
 
-    INCHES(1.0),
-    FEET(12.0),
-    YARDS(36.0),
-    CENTIMETERS(0.393701);
+    FEET(1.0),
+    INCHES(1.0 / 12.0),
+    YARDS(3.0),
+    CENTIMETERS(1.0 / 30.48);
 
-    private final double toInchesFactor;
+    private final double toFeetFactor;
 
-    LengthUnit(double toInchesFactor) {
-        this.toInchesFactor = toInchesFactor;
+    LengthUnit(double toFeetFactor) {
+        this.toFeetFactor = toFeetFactor;
     }
 
-    public double toInches(double value) {
-        return value * toInchesFactor;
+    /** Convert a value in this unit to base unit (feet) */
+    public double convertToBaseUnit(double value) {
+        return value * toFeetFactor;
     }
 
-    public double fromInches(double inches) {
-        return inches / toInchesFactor;
+    /** Convert a value from base unit (feet) to this unit */
+    public double convertFromBaseUnit(double baseValue) {
+        return baseValue / toFeetFactor;
     }
 
+    /** Safe parsing */
     public static LengthUnit fromString(String unit) {
         if (unit == null) {
             throw new IllegalArgumentException("Unit cannot be null");
         }
 
         switch (unit.trim().toLowerCase()) {
+            case "ft":
+            case "feet":
+            case "foot":
+                return FEET;
             case "in":
             case "inch":
             case "inches":
                 return INCHES;
-            case "ft":
-            case "foot":
-            case "feet":
-                return FEET;
             case "yd":
             case "yard":
             case "yards":
