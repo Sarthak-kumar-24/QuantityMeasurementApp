@@ -6,137 +6,173 @@ import com.measurement.*;
 import service.EqualityService;
 
 /**
- * Quantity Measurement App (UC10 + UC11)
+ * ========================================================= Quantity
+ * Measurement Application
+ * =========================================================
  *
- * Supports:
- * - Length
- * - Weight
- * - Volume
+ * This application allows the user to: 1. Compare two quantities (Equality) 2.
+ * Add two quantities (Implicit & Explicit unit) 3. Convert a quantity from one
+ * unit to another
+ *
+ * Supported Categories: - Length (ft, in, yd, cm) - Weight (kg, g, lb) - Volume
+ * (l, ml, gal)
+ *
+ * Concepts Used: - Generics - Enums - OOP Principles - Clean Separation of
+ * Concerns
  */
 public class QuantityMeasurementApp {
 
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
-        EqualityService equalityService = new EqualityService();
+		// Scanner for user input
+		Scanner scanner = new Scanner(System.in);
 
-        System.out.println("=== Quantity Measurement App (UC10 → UC11) ===");
-        System.out.println("Choose Measurement Category:");
-        System.out.println("1. Length");
-        System.out.println("2. Weight");
-        System.out.println("3. Volume");
-        System.out.print("Enter choice: ");
+		// Service responsible for equality comparison
+		EqualityService equalityService = new EqualityService();
 
-        int category = scanner.nextInt();
-        scanner.nextLine();
+		System.out.println("====================================");
+		System.out.println("      QUANTITY MEASUREMENT APP       ");
+		System.out.println("====================================");
 
-        switch (category) {
+		// Display category options
+		System.out.println("\nSelect Measurement Category:");
+		System.out.println("1. Length");
+		System.out.println("2. Weight");
+		System.out.println("3. Volume");
+		System.out.print("Enter your choice (1-3): ");
 
-            /* ===============================
-               LENGTH
-               =============================== */
-            case 1 -> {
-                System.out.println("\n--- Length Measurement ---");
-                System.out.println("Units: ft, in, yd, cm");
+		int category = scanner.nextInt();
+		scanner.nextLine(); // consume newline
 
-                System.out.print("Enter first value: ");
-                double lv1 = scanner.nextDouble();
-                scanner.nextLine();
-                System.out.print("Enter first unit: ");
-                LengthUnit lu1 = LengthUnit.fromString(scanner.nextLine());
+		switch (category) {
 
-                System.out.print("Enter second value: ");
-                double lv2 = scanner.nextDouble();
-                scanner.nextLine();
-                System.out.print("Enter second unit: ");
-                LengthUnit lu2 = LengthUnit.fromString(scanner.nextLine());
+		/*
+		 * ================================================= LENGTH MEASUREMENT
+		 * =================================================
+		 */
+		case 1 -> {
+			System.out.println("\n--- LENGTH MEASUREMENT ---");
+			System.out.println("Available Units: ft, in, yd, cm");
 
-                Quantity<LengthUnit> l1 = new Quantity<>(lv1, lu1);
-                Quantity<LengthUnit> l2 = new Quantity<>(lv2, lu2);
+			// First Quantity
+			System.out.print("\nEnter first value: ");
+			double value1 = scanner.nextDouble();
+			scanner.nextLine();
+			System.out.print("Enter first unit: ");
+			LengthUnit unit1 = LengthUnit.fromString(scanner.nextLine());
 
-                System.out.println("\nEquality: " + equalityService.areEqual(l1, l2));
-                System.out.println("Addition (implicit): " + l1.add(l2));
+			// Second Quantity
+			System.out.print("\nEnter second value: ");
+			double value2 = scanner.nextDouble();
+			scanner.nextLine();
+			System.out.print("Enter second unit: ");
+			LengthUnit unit2 = LengthUnit.fromString(scanner.nextLine());
 
-                System.out.print("Target unit for addition: ");
-                LengthUnit lTarget = LengthUnit.fromString(scanner.nextLine());
-                System.out.println("Addition (explicit): " + Quantity.add(l1, l2, lTarget));
+			// Create Quantity objects
+			Quantity<LengthUnit> q1 = new Quantity<>(value1, unit1);
+			Quantity<LengthUnit> q2 = new Quantity<>(value2, unit2);
 
-                System.out.print("Convert first quantity to: ");
-                LengthUnit lConv = LengthUnit.fromString(scanner.nextLine());
-                System.out.println("Conversion: " + l1.convertTo(lConv));
-            }
+			// Equality Check
+			System.out.println("\n Are quantities equal? : " + equalityService.areEqual(q1, q2));
 
-            /* ===============================
-               WEIGHT
-               =============================== */
-            case 2 -> {
-                System.out.println("\n--- Weight Measurement ---");
-                System.out.println("Units: kg, g, lb");
+			// Implicit Addition
+			System.out.println(" Addition (default unit): " + q1.add(q2));
 
-                System.out.print("Enter first value: ");
-                double wv1 = scanner.nextDouble();
-                scanner.nextLine();
-                System.out.print("Enter first unit: ");
-                WeightUnit wu1 = WeightUnit.fromString(scanner.nextLine());
+			// Explicit Addition
+			System.out.print("\nEnter target unit for addition: ");
+			LengthUnit targetUnit = LengthUnit.fromString(scanner.nextLine());
+			System.out.println(" Addition (converted): " + Quantity.add(q1, q2, targetUnit));
 
-                System.out.print("Enter second value: ");
-                double wv2 = scanner.nextDouble();
-                scanner.nextLine();
-                System.out.print("Enter second unit: ");
-                WeightUnit wu2 = WeightUnit.fromString(scanner.nextLine());
+			// Conversion
+			System.out.print("\nConvert first quantity to: ");
+			LengthUnit convertUnit = LengthUnit.fromString(scanner.nextLine());
+			System.out.println(" Converted Value: " + q1.convertTo(convertUnit));
+		}
 
-                Quantity<WeightUnit> w1 = new Quantity<>(wv1, wu1);
-                Quantity<WeightUnit> w2 = new Quantity<>(wv2, wu2);
+		/*
+		 * ================================================= WEIGHT MEASUREMENT
+		 * =================================================
+		 */
+		case 2 -> {
+			System.out.println("\n--- WEIGHT MEASUREMENT ---");
+			System.out.println("Available Units: kg, g, lb");
 
-                System.out.println("\nEquality: " + equalityService.areEqual(w1, w2));
-                System.out.println("Addition (implicit): " + w1.add(w2));
+			System.out.print("\nEnter first value: ");
+			double value1 = scanner.nextDouble();
+			scanner.nextLine();
+			System.out.print("Enter first unit: ");
+			WeightUnit unit1 = WeightUnit.fromString(scanner.nextLine());
 
-                System.out.print("Target unit for addition: ");
-                WeightUnit wTarget = WeightUnit.fromString(scanner.nextLine());
-                System.out.println("Addition (explicit): " + Quantity.add(w1, w2, wTarget));
+			System.out.print("\nEnter second value: ");
+			double value2 = scanner.nextDouble();
+			scanner.nextLine();
+			System.out.print("Enter second unit: ");
+			WeightUnit unit2 = WeightUnit.fromString(scanner.nextLine());
 
-                System.out.print("Convert first quantity to: ");
-                WeightUnit wConv = WeightUnit.fromString(scanner.nextLine());
-                System.out.println("Conversion: " + w1.convertTo(wConv));
-            }
+			Quantity<WeightUnit> q1 = new Quantity<>(value1, unit1);
+			Quantity<WeightUnit> q2 = new Quantity<>(value2, unit2);
 
-            /* ===============================
-               VOLUME (UC11)
-               =============================== */
-            case 3 -> {
-                System.out.println("\n--- Volume Measurement ---");
-                System.out.println("Units: l, ml, gal");
+			System.out.println("\n Are quantities equal? : " + equalityService.areEqual(q1, q2));
 
-                System.out.print("Enter first value: ");
-                double vv1 = scanner.nextDouble();
-                scanner.nextLine();
-                System.out.print("Enter first unit: ");
-                VolumeUnit vu1 = VolumeUnit.fromString(scanner.nextLine());
+			System.out.println(" Addition (default unit): " + q1.add(q2));
 
-                System.out.print("Enter second value: ");
-                double vv2 = scanner.nextDouble();
-                scanner.nextLine();
-                System.out.print("Enter second unit: ");
-                VolumeUnit vu2 = VolumeUnit.fromString(scanner.nextLine());
+			System.out.print("\nEnter target unit for addition: ");
+			WeightUnit targetUnit = WeightUnit.fromString(scanner.nextLine());
+			System.out.println(" Addition (converted): " + Quantity.add(q1, q2, targetUnit));
 
-                Quantity<VolumeUnit> v1 = new Quantity<>(vv1, vu1);
-                Quantity<VolumeUnit> v2 = new Quantity<>(vv2, vu2);
+			System.out.print("\nConvert first quantity to: ");
+			WeightUnit convertUnit = WeightUnit.fromString(scanner.nextLine());
+			System.out.println(" Converted Value: " + q1.convertTo(convertUnit));
+		}
 
-                System.out.println("\nEquality: " + equalityService.areEqual(v1, v2));
-                System.out.println("Addition (implicit): " + v1.add(v2));
+		/*
+		 * ================================================= VOLUME MEASUREMENT (UC11)
+		 * =================================================
+		 */
+		case 3 -> {
+			System.out.println("\n--- VOLUME MEASUREMENT ---");
+			System.out.println("Available Units: l, ml, gal");
 
-                System.out.print("Target unit for addition: ");
-                VolumeUnit vTarget = VolumeUnit.fromString(scanner.nextLine());
-                System.out.println("Addition (explicit): " + Quantity.add(v1, v2, vTarget));
+			System.out.print("\nEnter first value: ");
+			double value1 = scanner.nextDouble();
+			scanner.nextLine();
+			System.out.print("Enter first unit: ");
+			VolumeUnit unit1 = VolumeUnit.fromString(scanner.nextLine());
 
-                System.out.print("Convert first quantity to: ");
-                VolumeUnit vConv = VolumeUnit.fromString(scanner.nextLine());
-                System.out.println("Conversion: " + v1.convertTo(vConv));
-            }
+			System.out.print("\nEnter second value: ");
+			double value2 = scanner.nextDouble();
+			scanner.nextLine();
+			System.out.print("Enter second unit: ");
+			VolumeUnit unit2 = VolumeUnit.fromString(scanner.nextLine());
 
-            default -> System.out.println("Invalid category selection");
-        }
+			Quantity<VolumeUnit> q1 = new Quantity<>(value1, unit1);
+			Quantity<VolumeUnit> q2 = new Quantity<>(value2, unit2);
 
-        scanner.close();
-    }
+			System.out.println("\n Are quantities equal? : " + equalityService.areEqual(q1, q2));
+
+			System.out.println(" Addition (default unit): " + q1.add(q2));
+
+			System.out.print("\nEnter target unit for addition: ");
+			VolumeUnit targetUnit = VolumeUnit.fromString(scanner.nextLine());
+			System.out.println(" Addition (converted): " + Quantity.add(q1, q2, targetUnit));
+
+			System.out.print("\nConvert first quantity to: ");
+			VolumeUnit convertUnit = VolumeUnit.fromString(scanner.nextLine());
+			System.out.println(" Converted Value: " + q1.convertTo(convertUnit));
+		}
+
+		/*
+		 * ================================================= INVALID OPTION
+		 * =================================================
+		 */
+		default -> System.out.println("\n Invalid category selection!");
+		}
+
+		scanner.close();
+
+		System.out.println("\n====================================");
+		System.out.println("        THANK YOU FOR USING          ");
+		System.out.println("     QUANTITY MEASUREMENT APP        ");
+		System.out.println("====================================");
+	}
 }
