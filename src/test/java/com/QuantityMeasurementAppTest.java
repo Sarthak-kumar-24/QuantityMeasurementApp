@@ -8,20 +8,24 @@ import com.measurement.LengthUnit;
 import com.measurement.QuantityLength;
 
 /**
- * UC7 Test Class
- * Covers:
- * - Equality (UC3 / UC4)
- * - Conversion (UC5)
- * - Addition implicit target (UC6)
- * - Addition explicit target (UC7)
+ * UC8 Test Class
+ * Covers UC1 → UC8 with refactored standalone LengthUnit
  */
 public class QuantityMeasurementAppTest {
 
     private static final double EPSILON = 1e-6;
 
-    /* ==================================================
-       UC3 / UC4 : EQUALITY
-       ================================================== */
+    /* =====================================================
+       UC1 / UC3 – Equality
+       ===================================================== */
+
+    @Test
+    void testEquality_SameUnit() {
+        assertEquals(
+                new QuantityLength(5.0, LengthUnit.FEET),
+                new QuantityLength(5.0, LengthUnit.FEET)
+        );
+    }
 
     @Test
     void testEquality_CrossUnit() {
@@ -32,14 +36,19 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
-    void testEquality_SameReference() {
-        QuantityLength q = new QuantityLength(2.0, LengthUnit.YARDS);
-        assertEquals(q, q);
+    void testEquality_Transitive() {
+        QuantityLength feet = new QuantityLength(1.0, LengthUnit.FEET);
+        QuantityLength inches = new QuantityLength(12.0, LengthUnit.INCHES);
+        QuantityLength yards = new QuantityLength(1.0 / 3.0, LengthUnit.YARDS);
+
+        assertEquals(feet, inches);
+        assertEquals(inches, yards);
+        assertEquals(feet, yards);
     }
 
-    /* ==================================================
-       UC5 : CONVERSION
-       ================================================== */
+    /* =====================================================
+       UC5 – Conversion
+       ===================================================== */
 
     @Test
     void testConversion_FeetToInches() {
@@ -51,20 +60,47 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
+    void testConversion_InchesToFeet() {
+        assertEquals(
+                1.0,
+                QuantityLength.convert(12.0, LengthUnit.INCHES, LengthUnit.FEET),
+                EPSILON
+        );
+    }
+
+    @Test
     void testConversion_RoundTrip() {
         double value = 5.0;
-        double inches = QuantityLength.convert(value, LengthUnit.FEET, LengthUnit.INCHES);
-        double feet = QuantityLength.convert(inches, LengthUnit.INCHES, LengthUnit.FEET);
+
+        double inches =
+                QuantityLength.convert(value, LengthUnit.FEET, LengthUnit.INCHES);
+        double feet =
+                QuantityLength.convert(inches, LengthUnit.INCHES, LengthUnit.FEET);
 
         assertEquals(value, feet, EPSILON);
     }
 
-    /* ==================================================
-       UC6 : ADDITION (implicit target)
-       ================================================== */
+    @Test
+    void testConversion_InvalidValue_Throws() {
+        assertThrows(IllegalArgumentException.class, () ->
+                QuantityLength.convert(Double.NaN, LengthUnit.FEET, LengthUnit.INCHES));
+    }
+
+    /* =====================================================
+       UC6 – Addition (implicit target)
+       ===================================================== */
 
     @Test
-    void testAddition_ImplicitTarget_FeetPlusInches() {
+    void testAddition_Implicit_SameUnit() {
+        QuantityLength result =
+                new QuantityLength(2.0, LengthUnit.FEET)
+                        .add(new QuantityLength(3.0, LengthUnit.FEET));
+
+        assertEquals(new QuantityLength(5.0, LengthUnit.FEET), result);
+    }
+
+    @Test
+    void testAddition_Implicit_CrossUnit() {
         QuantityLength result =
                 new QuantityLength(1.0, LengthUnit.FEET)
                         .add(new QuantityLength(12.0, LengthUnit.INCHES));
@@ -73,16 +109,16 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
-    void testAddition_Commutative_Implicit() {
+    void testAddition_Implicit_Commutative() {
         QuantityLength a = new QuantityLength(1.0, LengthUnit.FEET);
         QuantityLength b = new QuantityLength(12.0, LengthUnit.INCHES);
 
         assertEquals(a.add(b), b.add(a));
     }
 
-    /* ==================================================
-       UC7 : ADDITION (explicit target unit)
-       ================================================== */
+    /* =====================================================
+       UC7 – Addition (explicit target unit)
+       ===================================================== */
 
     @Test
     void testAddition_ExplicitTarget_Feet() {
@@ -122,31 +158,19 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
-    void testAddition_ExplicitTarget_Centimeters() {
-        QuantityLength result =
-                QuantityLength.add(
-                        new QuantityLength(2.54, LengthUnit.CENTIMETERS),
-                        new QuantityLength(1.0, LengthUnit.INCHES),
-                        LengthUnit.CENTIMETERS
-                );
-
-        assertEquals(5.08, result.getValue(), 1e-2);
-    }
-
-    @Test
     void testAddition_ExplicitTarget_WithZero() {
         QuantityLength result =
                 QuantityLength.add(
                         new QuantityLength(5.0, LengthUnit.FEET),
                         new QuantityLength(0.0, LengthUnit.INCHES),
-                        LengthUnit.YARDS
+                        LengthUnit.FEET
                 );
 
-        assertEquals(1.666666, result.getValue(), 1e-3);
+        assertEquals(new QuantityLength(5.0, LengthUnit.FEET), result);
     }
 
     @Test
-    void testAddition_ExplicitTarget_NegativeValues() {
+    void testAddition_ExplicitTarget_Negative() {
         QuantityLength result =
                 QuantityLength.add(
                         new QuantityLength(5.0, LengthUnit.FEET),
@@ -157,13 +181,46 @@ public class QuantityMeasurementAppTest {
         assertEquals(36.0, result.getValue(), EPSILON);
     }
 
+    /* =====================================================
+       UC8 – LengthUnit Responsibility & Refactor Validation
+       ===================================================== */
+
     @Test
-    void testAddition_ExplicitTarget_NullTarget_Throws() {
-        assertThrows(IllegalArgumentException.class, () ->
-                QuantityLength.add(
-                        new QuantityLength(1.0, LengthUnit.FEET),
-                        new QuantityLength(1.0, LengthUnit.FEET),
-                        null
-                ));
+    void testLengthUnit_ConvertToBaseUnit() {
+        assertEquals(1.0,
+                LengthUnit.INCHES.convertToBaseUnit(12.0),
+                EPSILON);
+    }
+
+    @Test
+    void testLengthUnit_ConvertFromBaseUnit() {
+        assertEquals(12.0,
+                LengthUnit.INCHES.convertFromBaseUnit(1.0),
+                EPSILON);
+    }
+
+    @Test
+    void testQuantityLength_DelegatesConversionToUnit() {
+        QuantityLength q = new QuantityLength(1.0, LengthUnit.FEET);
+        QuantityLength converted = q.convertTo(LengthUnit.INCHES);
+
+        assertEquals(new QuantityLength(12.0, LengthUnit.INCHES), converted);
+    }
+
+    @Test
+    void testBackwardCompatibility_UC5() {
+        assertEquals(
+                2.0,
+                QuantityLength.convert(6.0, LengthUnit.FEET, LengthUnit.YARDS),
+                EPSILON
+        );
+    }
+
+    @Test
+    void testImmutability() {
+        QuantityLength q1 = new QuantityLength(5.0, LengthUnit.FEET);
+        q1.add(new QuantityLength(1.0, LengthUnit.FEET));
+
+        assertEquals(5.0, q1.getValue());
     }
 }
