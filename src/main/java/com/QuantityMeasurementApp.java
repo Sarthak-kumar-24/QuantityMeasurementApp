@@ -6,19 +6,24 @@ import com.measurement.*;
 import service.EqualityService;
 
 /**
- * ========================================================= Quantity
- * Measurement Application
+ * ========================================================= 
+ * Quantity  Measurement Application
  * =========================================================
  *
  * This application allows the user to: 1. Compare two quantities (Equality) 2.
  * Add two quantities (Implicit & Explicit unit) 3. Convert a quantity from one
  * unit to another
  *
- * Supported Categories: - Length (ft, in, yd, cm) - Weight (kg, g, lb) - Volume
- * (l, ml, gal)
+ * Supported Categories: 
+ * - Length (ft, in, yd, cm) 
+ * - Weight (kg, g, lb) 
+ * - Volume (l, ml, gal)
  *
- * Concepts Used: - Generics - Enums - OOP Principles - Clean Separation of
- * Concerns
+ * Concepts Used: 
+ * - Generics 
+ * - Enums 
+ * - OOP Principles 
+ * - Clean Separation of Concerns
  */
 public class QuantityMeasurementApp {
 
@@ -47,7 +52,8 @@ public class QuantityMeasurementApp {
 		switch (category) {
 
 		/*
-		 * ================================================= LENGTH MEASUREMENT
+		 * ================================================= 
+		 * LENGTH MEASUREMENT
 		 * =================================================
 		 */
 		case 1 -> {
@@ -90,7 +96,8 @@ public class QuantityMeasurementApp {
 		}
 
 		/*
-		 * ================================================= WEIGHT MEASUREMENT
+		 * ================================================= 
+		 * WEIGHT MEASUREMENT
 		 * =================================================
 		 */
 		case 2 -> {
@@ -126,7 +133,8 @@ public class QuantityMeasurementApp {
 		}
 
 		/*
-		 * ================================================= VOLUME MEASUREMENT (UC11)
+		 * ================================================= 
+		 * VOLUME MEASUREMENT (UC11)
 		 * =================================================
 		 */
 		case 3 -> {
@@ -162,7 +170,8 @@ public class QuantityMeasurementApp {
 		}
 
 		/*
-		 * ================================================= INVALID OPTION
+		 * ================================================= 
+		 * INVALID OPTION
 		 * =================================================
 		 */
 		default -> System.out.println("\n Invalid category selection!");
