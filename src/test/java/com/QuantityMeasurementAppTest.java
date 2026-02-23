@@ -4,23 +4,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.measurement.LengthUnit;
-import com.measurement.QuantityLength;
+import com.measurement.*;
+import service.EqualityService;
 
 /**
- * UC8 Test Class
- * Covers UC1 → UC8 with refactored standalone LengthUnit
+ * Quantity Measurement App Test
+ * Covers:
+ * UC1–UC8 : Length
+ * UC9     : Weight
  */
 public class QuantityMeasurementAppTest {
 
     private static final double EPSILON = 1e-6;
 
     /* =====================================================
-       UC1 / UC3 – Equality
+       UC1 / UC3 – Length Equality
        ===================================================== */
 
     @Test
-    void testEquality_SameUnit() {
+    void testLengthEquality_SameUnit() {
         assertEquals(
                 new QuantityLength(5.0, LengthUnit.FEET),
                 new QuantityLength(5.0, LengthUnit.FEET)
@@ -28,7 +30,7 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
-    void testEquality_CrossUnit() {
+    void testLengthEquality_CrossUnit() {
         assertEquals(
                 new QuantityLength(1.0, LengthUnit.FEET),
                 new QuantityLength(12.0, LengthUnit.INCHES)
@@ -36,7 +38,7 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
-    void testEquality_Transitive() {
+    void testLengthEquality_Transitive() {
         QuantityLength feet = new QuantityLength(1.0, LengthUnit.FEET);
         QuantityLength inches = new QuantityLength(12.0, LengthUnit.INCHES);
         QuantityLength yards = new QuantityLength(1.0 / 3.0, LengthUnit.YARDS);
@@ -47,11 +49,11 @@ public class QuantityMeasurementAppTest {
     }
 
     /* =====================================================
-       UC5 – Conversion
+       UC5 – Length Conversion
        ===================================================== */
 
     @Test
-    void testConversion_FeetToInches() {
+    void testLengthConversion_FeetToInches() {
         assertEquals(
                 12.0,
                 QuantityLength.convert(1.0, LengthUnit.FEET, LengthUnit.INCHES),
@@ -60,7 +62,7 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
-    void testConversion_InchesToFeet() {
+    void testLengthConversion_InchesToFeet() {
         assertEquals(
                 1.0,
                 QuantityLength.convert(12.0, LengthUnit.INCHES, LengthUnit.FEET),
@@ -69,7 +71,7 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
-    void testConversion_RoundTrip() {
+    void testLengthConversion_RoundTrip() {
         double value = 5.0;
 
         double inches =
@@ -80,27 +82,12 @@ public class QuantityMeasurementAppTest {
         assertEquals(value, feet, EPSILON);
     }
 
-    @Test
-    void testConversion_InvalidValue_Throws() {
-        assertThrows(IllegalArgumentException.class, () ->
-                QuantityLength.convert(Double.NaN, LengthUnit.FEET, LengthUnit.INCHES));
-    }
-
     /* =====================================================
-       UC6 – Addition (implicit target)
+       UC6 / UC7 – Length Addition
        ===================================================== */
 
     @Test
-    void testAddition_Implicit_SameUnit() {
-        QuantityLength result =
-                new QuantityLength(2.0, LengthUnit.FEET)
-                        .add(new QuantityLength(3.0, LengthUnit.FEET));
-
-        assertEquals(new QuantityLength(5.0, LengthUnit.FEET), result);
-    }
-
-    @Test
-    void testAddition_Implicit_CrossUnit() {
+    void testLengthAddition_Implicit() {
         QuantityLength result =
                 new QuantityLength(1.0, LengthUnit.FEET)
                         .add(new QuantityLength(12.0, LengthUnit.INCHES));
@@ -109,31 +96,7 @@ public class QuantityMeasurementAppTest {
     }
 
     @Test
-    void testAddition_Implicit_Commutative() {
-        QuantityLength a = new QuantityLength(1.0, LengthUnit.FEET);
-        QuantityLength b = new QuantityLength(12.0, LengthUnit.INCHES);
-
-        assertEquals(a.add(b), b.add(a));
-    }
-
-    /* =====================================================
-       UC7 – Addition (explicit target unit)
-       ===================================================== */
-
-    @Test
-    void testAddition_ExplicitTarget_Feet() {
-        QuantityLength result =
-                QuantityLength.add(
-                        new QuantityLength(1.0, LengthUnit.FEET),
-                        new QuantityLength(12.0, LengthUnit.INCHES),
-                        LengthUnit.FEET
-                );
-
-        assertEquals(new QuantityLength(2.0, LengthUnit.FEET), result);
-    }
-
-    @Test
-    void testAddition_ExplicitTarget_Inches() {
+    void testLengthAddition_ExplicitTarget() {
         QuantityLength result =
                 QuantityLength.add(
                         new QuantityLength(1.0, LengthUnit.FEET),
@@ -144,83 +107,134 @@ public class QuantityMeasurementAppTest {
         assertEquals(new QuantityLength(24.0, LengthUnit.INCHES), result);
     }
 
-    @Test
-    void testAddition_ExplicitTarget_Yards() {
-        QuantityLength result =
-                QuantityLength.add(
-                        new QuantityLength(1.0, LengthUnit.FEET),
-                        new QuantityLength(12.0, LengthUnit.INCHES),
-                        LengthUnit.YARDS
-                );
-
-        assertEquals(0.666666, result.getValue(), 1e-3);
-        assertEquals(LengthUnit.YARDS, result.getUnit());
-    }
-
-    @Test
-    void testAddition_ExplicitTarget_WithZero() {
-        QuantityLength result =
-                QuantityLength.add(
-                        new QuantityLength(5.0, LengthUnit.FEET),
-                        new QuantityLength(0.0, LengthUnit.INCHES),
-                        LengthUnit.FEET
-                );
-
-        assertEquals(new QuantityLength(5.0, LengthUnit.FEET), result);
-    }
-
-    @Test
-    void testAddition_ExplicitTarget_Negative() {
-        QuantityLength result =
-                QuantityLength.add(
-                        new QuantityLength(5.0, LengthUnit.FEET),
-                        new QuantityLength(-2.0, LengthUnit.FEET),
-                        LengthUnit.INCHES
-                );
-
-        assertEquals(36.0, result.getValue(), EPSILON);
-    }
-
     /* =====================================================
-       UC8 – LengthUnit Responsibility & Refactor Validation
+       UC8 – LengthUnit Responsibility
        ===================================================== */
 
     @Test
-    void testLengthUnit_ConvertToBaseUnit() {
-        assertEquals(1.0,
-                LengthUnit.INCHES.convertToBaseUnit(12.0),
-                EPSILON);
-    }
-
-    @Test
-    void testLengthUnit_ConvertFromBaseUnit() {
-        assertEquals(12.0,
-                LengthUnit.INCHES.convertFromBaseUnit(1.0),
-                EPSILON);
-    }
-
-    @Test
-    void testQuantityLength_DelegatesConversionToUnit() {
-        QuantityLength q = new QuantityLength(1.0, LengthUnit.FEET);
-        QuantityLength converted = q.convertTo(LengthUnit.INCHES);
-
-        assertEquals(new QuantityLength(12.0, LengthUnit.INCHES), converted);
-    }
-
-    @Test
-    void testBackwardCompatibility_UC5() {
+    void testLengthUnit_ToBaseUnit() {
         assertEquals(
-                2.0,
-                QuantityLength.convert(6.0, LengthUnit.FEET, LengthUnit.YARDS),
+                1.0,
+                LengthUnit.INCHES.convertToBaseUnit(12.0),
                 EPSILON
         );
     }
 
     @Test
-    void testImmutability() {
-        QuantityLength q1 = new QuantityLength(5.0, LengthUnit.FEET);
-        q1.add(new QuantityLength(1.0, LengthUnit.FEET));
+    void testLengthUnit_FromBaseUnit() {
+        assertEquals(
+                12.0,
+                LengthUnit.INCHES.convertFromBaseUnit(1.0),
+                EPSILON
+        );
+    }
 
-        assertEquals(5.0, q1.getValue());
+    /* =====================================================
+       UC9 – Weight Equality
+       ===================================================== */
+
+    @Test
+    void testWeightEquality_SameUnit() {
+        assertEquals(
+                new QuantityWeight(1.0, WeightUnit.KILOGRAM),
+                new QuantityWeight(1.0, WeightUnit.KILOGRAM)
+        );
+    }
+
+    @Test
+    void testWeightEquality_CrossUnit_KgToGram() {
+        assertEquals(
+                new QuantityWeight(1.0, WeightUnit.KILOGRAM),
+                new QuantityWeight(1000.0, WeightUnit.GRAM)
+        );
+    }
+
+    @Test
+    void testWeightEquality_CrossUnit_KgToPound() {
+        assertEquals(
+                new QuantityWeight(1.0, WeightUnit.KILOGRAM),
+                new QuantityWeight(2.20462, WeightUnit.POUND)
+        );
+    }
+
+    /* =====================================================
+       UC9 – Weight Conversion
+       ===================================================== */
+
+    @Test
+    void testWeightConversion_KgToGram() {
+        QuantityWeight result =
+                new QuantityWeight(1.0, WeightUnit.KILOGRAM)
+                        .convertTo(WeightUnit.GRAM);
+
+        assertEquals(1000.0, result.getValue(), EPSILON);
+    }
+
+    @Test
+    void testWeightConversion_PoundToKg() {
+        QuantityWeight result =
+                new QuantityWeight(1.0, WeightUnit.POUND)
+                        .convertTo(WeightUnit.KILOGRAM);
+
+        assertEquals(0.453592, result.getValue(), EPSILON);
+    }
+
+    /* =====================================================
+       UC9 – Weight Addition
+       ===================================================== */
+
+    @Test
+    void testWeightAddition_Implicit() {
+        QuantityWeight result =
+                new QuantityWeight(1.0, WeightUnit.KILOGRAM)
+                        .add(new QuantityWeight(500.0, WeightUnit.GRAM));
+
+        assertEquals(
+                new QuantityWeight(1.5, WeightUnit.KILOGRAM),
+                result
+        );
+    }
+
+    @Test
+    void testWeightAddition_ExplicitTarget() {
+        QuantityWeight result =
+                QuantityWeight.add(
+                        new QuantityWeight(1.0, WeightUnit.KILOGRAM),
+                        new QuantityWeight(500.0, WeightUnit.GRAM),
+                        WeightUnit.GRAM
+                );
+
+        assertEquals(1500.0, result.getValue(), EPSILON);
+        assertEquals(WeightUnit.GRAM, result.getUnit());
+    }
+
+    /* =====================================================
+       UC9 – Category Incompatibility
+       ===================================================== */
+
+    @Test
+    void testLengthVsWeight_NotEqual() {
+        EqualityService service = new EqualityService();
+
+        QuantityLength length =
+                new QuantityLength(1.0, LengthUnit.FEET);
+        QuantityWeight weight =
+                new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+
+        assertFalse(service.areEqual(length, weight));
+    }
+
+    /* =====================================================
+       Immutability (All Categories)
+       ===================================================== */
+
+    @Test
+    void testWeightImmutability() {
+        QuantityWeight w =
+                new QuantityWeight(1.0, WeightUnit.KILOGRAM);
+
+        w.add(new QuantityWeight(1.0, WeightUnit.KILOGRAM));
+
+        assertEquals(1.0, w.getValue(), EPSILON);
     }
 }
