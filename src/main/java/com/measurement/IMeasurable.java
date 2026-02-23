@@ -1,6 +1,6 @@
 package com.measurement;
 
-/**
+/*
  * UC10–UC14: Common interface for all measurable units
  */
 public interface IMeasurable {
@@ -21,10 +21,10 @@ public interface IMeasurable {
        UC14 – Selective Arithmetic
        =============================== */
 
-    /**
+    /*
      * Whether this unit supports arithmetic operations.
-     * Length, Weight, Volume → true
-     * Temperature → false
+     * Length, Weight, Volume -> true
+     * Temperature -> false
      */
     default boolean supportsArithmetic() {
         return true;
