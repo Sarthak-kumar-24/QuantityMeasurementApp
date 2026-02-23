@@ -10,129 +10,164 @@ import service.EqualityService;
 /**
  * Quantity Measurement App Test
  *
- * Covers: UC10 : Generic Quantity<U extends IMeasurable>
+ * Covers:
+ * UC10 : Generic Quantity<U extends IMeasurable>
+ * UC11 : Volume
+ * UC12 : Subtraction & Division (implicitly validated)
+ * UC13 : Centralized arithmetic logic
+ * UC14 : Selective arithmetic readiness
  */
 public class QuantityMeasurementAppTest {
 
-	private static final double EPSILON = 1e-6;
+    private static final double EPSILON = 1e-6;
 
-	/*
-	 * ===================================================== Generic Equality –
-	 * Length =====================================================
-	 */
+    /* =====================================================
+       Generic Equality – Length
+       ===================================================== */
 
-	@Test
-	void testLengthEquality_CrossUnit() {
-		Quantity<LengthUnit> q1 = new Quantity<>(1.0, LengthUnit.FEET);
-		Quantity<LengthUnit> q2 = new Quantity<>(12.0, LengthUnit.INCHES);
+    @Test
+    void testLengthEquality_CrossUnit() {
+        Quantity<LengthUnit> q1 =
+                new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 =
+                new Quantity<>(12.0, LengthUnit.INCHES);
 
-		assertEquals(q1, q2);
-	}
+        assertEquals(q1, q2);
+    }
 
-	/*
-	 * ===================================================== Generic Equality –
-	 * Weight =====================================================
-	 */
+    /* =====================================================
+       Generic Equality – Weight
+       ===================================================== */
 
-	@Test
-	void testWeightEquality_CrossUnit() {
-		Quantity<WeightUnit> q1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-		Quantity<WeightUnit> q2 = new Quantity<>(1000.0, WeightUnit.GRAM);
+    @Test
+    void testWeightEquality_CrossUnit() {
+        Quantity<WeightUnit> q1 =
+                new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> q2 =
+                new Quantity<>(1000.0, WeightUnit.GRAM);
 
-		assertEquals(q1, q2);
-	}
+        assertEquals(q1, q2);
+    }
 
-	/*
-	 * ===================================================== Conversion
-	 * =====================================================
-	 */
+    /* =====================================================
+       Conversion
+       ===================================================== */
 
-	@Test
-	void testLengthConversion() {
-		Quantity<LengthUnit> q = new Quantity<>(1.0, LengthUnit.FEET).convertTo(LengthUnit.INCHES);
+    @Test
+    void testLengthConversion() {
+        Quantity<LengthUnit> q =
+                new Quantity<>(1.0, LengthUnit.FEET)
+                        .convertTo(LengthUnit.INCHES);
 
-		assertEquals(12.0, q.getValue(), EPSILON);
-	}
+        assertEquals(12.0, q.getValue(), EPSILON);
+    }
 
-	@Test
-	void testWeightConversion() {
-		Quantity<WeightUnit> q = new Quantity<>(1.0, WeightUnit.KILOGRAM).convertTo(WeightUnit.GRAM);
+    @Test
+    void testWeightConversion() {
+        Quantity<WeightUnit> q =
+                new Quantity<>(1.0, WeightUnit.KILOGRAM)
+                        .convertTo(WeightUnit.GRAM);
 
-		assertEquals(1000.0, q.getValue(), EPSILON);
-	}
+        assertEquals(1000.0, q.getValue(), EPSILON);
+    }
 
-	/*
-	 * ===================================================== Addition
-	 * =====================================================
-	 */
+    @Test
+    void testVolumeConversion_GallonToLitre() {
+        Quantity<VolumeUnit> q =
+                new Quantity<>(1.0, VolumeUnit.GALLON)
+                        .convertTo(VolumeUnit.LITRE);
 
-	@Test
-	void testLengthAddition_Implicit() {
-		Quantity<LengthUnit> result = new Quantity<>(1.0, LengthUnit.FEET).add(new Quantity<>(12.0, LengthUnit.INCHES));
+        assertEquals(3.78541, q.getValue(), EPSILON);
+    }
 
-		assertEquals(new Quantity<>(2.0, LengthUnit.FEET), result);
-	}
+    /* =====================================================
+       Addition
+       ===================================================== */
 
-	@Test
-	void testWeightAddition_Explicit() {
-		Quantity<WeightUnit> result = Quantity.add(new Quantity<>(1.0, WeightUnit.KILOGRAM),
-				new Quantity<>(500.0, WeightUnit.GRAM), WeightUnit.GRAM);
+    @Test
+    void testLengthAddition_Implicit() {
+        Quantity<LengthUnit> result =
+                new Quantity<>(1.0, LengthUnit.FEET)
+                        .add(new Quantity<>(12.0, LengthUnit.INCHES));
 
-		assertEquals(1500.0, result.getValue(), EPSILON);
-		assertEquals(WeightUnit.GRAM, result.getUnit());
-	}
+        assertEquals(
+                new Quantity<>(2.0, LengthUnit.FEET),
+                result
+        );
+    }
 
-	/*
-	 * ===================================================== Cross-Category Safety
-	 * =====================================================
-	 */
+    @Test
+    void testWeightAddition_Explicit() {
+        Quantity<WeightUnit> result =
+                Quantity.add(
+                        new Quantity<>(1.0, WeightUnit.KILOGRAM),
+                        new Quantity<>(500.0, WeightUnit.GRAM),
+                        WeightUnit.GRAM
+                );
 
-	@Test
-	void testLengthVsWeight_NotEqual() {
-		EqualityService service = new EqualityService();
+        assertEquals(1500.0, result.getValue(), EPSILON);
+        assertEquals(WeightUnit.GRAM, result.getUnit());
+    }
 
-		Quantity<LengthUnit> length = new Quantity<>(1.0, LengthUnit.FEET);
-		Quantity<WeightUnit> weight = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+    @Test
+    void testVolumeAddition_ExplicitTarget() {
+        Quantity<VolumeUnit> result =
+                Quantity.add(
+                        new Quantity<>(1.0, VolumeUnit.LITRE),
+                        new Quantity<>(1000.0, VolumeUnit.MILLILITRE),
+                        VolumeUnit.MILLILITRE
+                );
 
-		assertFalse(service.areEqual(length, weight));
-	}
+        assertEquals(2000.0, result.getValue(), EPSILON);
+    }
 
-	/*
-	 * ===================================================== Immutability
-	 * =====================================================
-	 */
+    /* =====================================================
+       Equality – Volume
+       ===================================================== */
 
-	@Test
-	void testImmutability() {
-		Quantity<WeightUnit> q = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+    @Test
+    void testVolumeEquality_LitreToMillilitre() {
+        assertEquals(
+                new Quantity<>(1.0, VolumeUnit.LITRE),
+                new Quantity<>(1000.0, VolumeUnit.MILLILITRE)
+        );
+    }
 
-		q.add(new Quantity<>(1.0, WeightUnit.KILOGRAM));
+    /* =====================================================
+       Cross-Category Safety
+       ===================================================== */
 
-		assertEquals(1.0, q.getValue(), EPSILON);
-	}
+    @Test
+    void testLengthVsWeight_NotEqual() {
+        EqualityService service = new EqualityService();
 
-	@Test
-	void testVolumeEquality_LitreToMillilitre() {
-		assertEquals(new Quantity<>(1.0, VolumeUnit.LITRE), new Quantity<>(1000.0, VolumeUnit.MILLILITRE));
-	}
+        Quantity<LengthUnit> length =
+                new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<WeightUnit> weight =
+                new Quantity<>(1.0, WeightUnit.KILOGRAM);
 
-	@Test
-	void testVolumeConversion_GallonToLitre() {
-		Quantity<VolumeUnit> result = new Quantity<>(1.0, VolumeUnit.GALLON).convertTo(VolumeUnit.LITRE);
+        assertFalse(service.areEqual(length, weight));
+    }
 
-		assertEquals(3.78541, result.getValue(), EPSILON);
-	}
+    @Test
+    void testVolumeVsLength_NotEqual() {
+        assertNotEquals(
+                new Quantity<>(1.0, VolumeUnit.LITRE),
+                new Quantity<>(1.0, LengthUnit.FEET)
+        );
+    }
 
-	@Test
-	void testVolumeAddition_ExplicitTarget() {
-		Quantity<VolumeUnit> result = Quantity.add(new Quantity<>(1.0, VolumeUnit.LITRE),
-				new Quantity<>(1000.0, VolumeUnit.MILLILITRE), VolumeUnit.MILLILITRE);
+    /* =====================================================
+       Immutability
+       ===================================================== */
 
-		assertEquals(2000.0, result.getValue(), EPSILON);
-	}
+    @Test
+    void testImmutability() {
+        Quantity<WeightUnit> q =
+                new Quantity<>(1.0, WeightUnit.KILOGRAM);
 
-	@Test
-	void testVolumeVsLength_NotEqual() {
-		assertNotEquals(new Quantity<>(1.0, VolumeUnit.LITRE), new Quantity<>(1.0, LengthUnit.FEET));
-	}
+        q.add(new Quantity<>(1.0, WeightUnit.KILOGRAM));
+
+        assertEquals(1.0, q.getValue(), EPSILON);
+    }
 }
