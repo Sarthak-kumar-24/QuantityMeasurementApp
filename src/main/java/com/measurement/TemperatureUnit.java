@@ -18,15 +18,29 @@ public enum TemperatureUnit implements IMeasurable {
         return 1.0; // not used
     }
 
-    @Override
-    public String getUnitName() {
-        return symbol;
-    }
+ 
 
     @Override
     public boolean supportsArithmetic() {
         return false; // UC14 default restriction
     }
+    
+    public static TemperatureUnit fromString(String input) {
+        return switch (input.trim().toUpperCase()) {
+            case "C", "CELSIUS" -> CELSIUS;
+            case "F", "FAHRENHEIT" -> FAHRENHEIT;
+            case "K", "KELVIN" -> KELVIN;
+            default -> throw new IllegalArgumentException(
+                "Invalid temperature unit. Use C, F, or K"
+            );
+        };
+    }
+
+    @Override
+    public String getUnitName() {
+        return symbol;
+    }
+
 
     @Override
     public double convertToBaseUnit(double value) {
