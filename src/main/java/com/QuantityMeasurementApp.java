@@ -169,21 +169,20 @@ public class QuantityMeasurementApp {
 			double v1 = scanner.nextDouble();
 			scanner.nextLine();
 			System.out.print("Enter first unit: ");
-			TemperatureUnit u1 = TemperatureUnit.valueOf(scanner.nextLine().toUpperCase());
+			TemperatureUnit u1 =  TemperatureUnit.fromString(scanner.nextLine());
 
 			System.out.print("\nEnter second value: ");
 			double v2 = scanner.nextDouble();
 			scanner.nextLine();
 			System.out.print("Enter second unit: ");
-			TemperatureUnit u2 = TemperatureUnit.valueOf(scanner.nextLine().toUpperCase());
-
+			TemperatureUnit u2 =  TemperatureUnit.fromString(scanner.nextLine());
 			Quantity<TemperatureUnit> t1 = new Quantity<>(v1, u1);
 			Quantity<TemperatureUnit> t2 = new Quantity<>(v2, u2);
 
 			System.out.println("\n Are temperatures equal? : " + equalityService.areEqual(t1, t2));
 
 			System.out.print("\nConvert first temperature to: ");
-			TemperatureUnit target = TemperatureUnit.valueOf(scanner.nextLine().toUpperCase());
+			TemperatureUnit target =  TemperatureUnit.fromString(scanner.nextLine());
 			System.out.println(" Converted Value: " + t1.convertTo(target));
 
 			// Intentionally show UC14 restriction
