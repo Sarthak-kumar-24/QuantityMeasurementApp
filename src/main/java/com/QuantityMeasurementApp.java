@@ -5,9 +5,9 @@ import java.util.Scanner;
 import com.measurement.*;
 import service.EqualityService;
 
-/**
- * ========================================================= Quantity
- * Measurement Application
+/*
+ * ========================================================= 
+ * Quantity Measurement Application
  * =========================================================
  *
  * This application allows the user to: 1. Compare two quantities (Equality) 2.
@@ -39,7 +39,8 @@ public class QuantityMeasurementApp {
 		System.out.println("1. Length");
 		System.out.println("2. Weight");
 		System.out.println("3. Volume");
-		System.out.print("Enter your choice (1-3): ");
+		System.out.println("4. Temperature");
+		System.out.print("Enter your choice (1-4): ");
 
 		int category = scanner.nextInt();
 		scanner.nextLine(); // consume newline
