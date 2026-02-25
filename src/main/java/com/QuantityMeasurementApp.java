@@ -6,24 +6,19 @@ import com.measurement.*;
 import service.EqualityService;
 
 /**
- * ========================================================= 
- * Quantity  Measurement Application
+ * ========================================================= Quantity
+ * Measurement Application
  * =========================================================
  *
  * This application allows the user to: 1. Compare two quantities (Equality) 2.
  * Add two quantities (Implicit & Explicit unit) 3. Convert a quantity from one
  * unit to another
  *
- * Supported Categories: 
- * - Length (ft, in, yd, cm) 
- * - Weight (kg, g, lb) 
- * - Volume (l, ml, gal)
+ * Supported Categories: - Length (ft, in, yd, cm) - Weight (kg, g, lb) - Volume
+ * (l, ml, gal)
  *
- * Concepts Used: 
- * - Generics 
- * - Enums 
- * - OOP Principles 
- * - Clean Separation of Concerns
+ * Concepts Used: - Generics - Enums - OOP Principles - Clean Separation of
+ * Concerns
  */
 public class QuantityMeasurementApp {
 
@@ -52,8 +47,7 @@ public class QuantityMeasurementApp {
 		switch (category) {
 
 		/*
-		 * ================================================= 
-		 * LENGTH MEASUREMENT
+		 * ================================================= LENGTH MEASUREMENT
 		 * =================================================
 		 */
 		case 1 -> {
@@ -96,8 +90,7 @@ public class QuantityMeasurementApp {
 		}
 
 		/*
-		 * ================================================= 
-		 * WEIGHT MEASUREMENT
+		 * ================================================= WEIGHT MEASUREMENT
 		 * =================================================
 		 */
 		case 2 -> {
@@ -133,8 +126,7 @@ public class QuantityMeasurementApp {
 		}
 
 		/*
-		 * ================================================= 
-		 * VOLUME MEASUREMENT (UC11)
+		 * ================================================= VOLUME MEASUREMENT (UC11)
 		 * =================================================
 		 */
 		case 3 -> {
@@ -168,10 +160,41 @@ public class QuantityMeasurementApp {
 			VolumeUnit convertUnit = VolumeUnit.fromString(scanner.nextLine());
 			System.out.println(" Converted Value: " + q1.convertTo(convertUnit));
 		}
+		case 4 -> {
+			System.out.println("\n--- TEMPERATURE MEASUREMENT ---");
+			System.out.println("Available Units: C, F, K");
+
+			System.out.print("\nEnter first value: ");
+			double v1 = scanner.nextDouble();
+			scanner.nextLine();
+			System.out.print("Enter first unit: ");
+			TemperatureUnit u1 = TemperatureUnit.valueOf(scanner.nextLine().toUpperCase());
+
+			System.out.print("\nEnter second value: ");
+			double v2 = scanner.nextDouble();
+			scanner.nextLine();
+			System.out.print("Enter second unit: ");
+			TemperatureUnit u2 = TemperatureUnit.valueOf(scanner.nextLine().toUpperCase());
+
+			Quantity<TemperatureUnit> t1 = new Quantity<>(v1, u1);
+			Quantity<TemperatureUnit> t2 = new Quantity<>(v2, u2);
+
+			System.out.println("\n Are temperatures equal? : " + equalityService.areEqual(t1, t2));
+
+			System.out.print("\nConvert first temperature to: ");
+			TemperatureUnit target = TemperatureUnit.valueOf(scanner.nextLine().toUpperCase());
+			System.out.println(" Converted Value: " + t1.convertTo(target));
+
+			// Intentionally show UC14 restriction
+			try {
+				t1.add(t2);
+			} catch (Exception e) {
+				System.out.println(" Addition blocked: " + e.getMessage());
+			}
+		}
 
 		/*
-		 * ================================================= 
-		 * INVALID OPTION
+		 * ================================================= INVALID OPTION
 		 * =================================================
 		 */
 		default -> System.out.println("\n Invalid category selection!");
