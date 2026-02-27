@@ -6,7 +6,7 @@ import com.measurement.LengthUnit;
 import com.measurement.QuantityLength;
 import service.EqualityService;
 
-/**
+/*
  * UC4: Extended Unit Support
  * Supports Feet, Inches, Yards, and Centimeters.
  */
