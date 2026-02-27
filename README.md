@@ -1,138 +1,165 @@
 # Quantity Measurement App  
-## UC3 – Generic Quantity Class (Applying DRY Principle)
+## UC4 – Extended Unit Support (Scalable Generic Design)
 
 ---
 
-##  Overview
+## 📌 Overview
 
-UC3 refactors the Quantity Measurement App to remove code duplication introduced in earlier use cases (UC1 and UC2).
+UC4 extends the Quantity Measurement App by building on the **generic, DRY-based design introduced in UC3**.
 
-Previously, separate classes such as Feet and Inches were used to represent different units of length. While functional, this design violated the DRY (Don’t Repeat Yourself) principle because these classes contained nearly identical logic for construction, validation, and equality comparison.
+While UC3 focused on eliminating duplication by replacing unit-specific classes (Feet, Inches) with a single generic quantity model, UC4 validates that design by **adding new units without modifying existing logic**.
 
-UC3 introduces a single generic quantity class backed by a unit enum, preserving all existing functionality while significantly improving maintainability and scalability.
-
----
-
-## UC3 Objectives
-
-- Eliminate duplication caused by unit-specific classes
-- Introduce a unified representation for length measurements
-- Enable cross-unit equality (e.g., 1 foot == 12 inches)
-- Preserve all behavior from UC1 and UC2
-- Prepare the codebase for easy future extensions
+In this use case, **Yards** and **Centimeters** are introduced as additional length units.  
+All changes are confined to the `LengthUnit` enum, proving that the system is scalable, maintainable, and correctly abstracted.
 
 ---
 
-##  Supported Functionality
+##  UC4 Objectives
 
-- ✔ Feet ↔ Feet equality  
-- ✔ Inches ↔ Inches equality  
-- ✔ Safe handling of:
-  - same reference
-  - null comparison
-  - different object comparison  
-
----
-
-## Changes Introduced in UC3
-❌ Removed
-
-- Feet class
-- Inches class
-
-✅ Added
-
-QuantityLength – generic class representing any length quantity
-LengthUnit – enum defining supported units and conversion factors
+- Extend length unit support to **Yards** and **Centimeters**
+- Preserve all functionality from UC1, UC2, and UC3
+- Support accurate **cross-unit equality** across multiple units
+- Avoid code duplication while adding new units
+- Demonstrate scalability of the generic quantity design
 
 ---
 
-##  Design Improvements Introduced in UC3
+##  Supported Units
 
-### 1️ Generic Quantity Model
+| Unit | Symbol | Conversion to Base Unit (Inches) |
+|----|----|----|
+| Inches | in | 1.0 |
+| Feet | ft | 12.0 |
+| Yards | yd | 36.0 |
+| Centimeters | cm | 0.393701 |
 
-QuantityLength encapsulates:
+> **Base Unit:** Inches  
+All unit values are internally converted to inches before comparison.
+
+---
+
+##  Design Approach
+
+UC4 follows a **composition-based design**, where each measurement is represented by:
+
+- a numeric value
+- a unit type (enum)
+- centralized conversion logic
+
+No inheritance hierarchy is used for units.  
+Instead, unit behavior is driven by the `LengthUnit` enum.
+
+---
+
+##  Core Components
+
+### 1️ QuantityLength (Generic Quantity Class)
+
+`QuantityLength` represents a length measurement using:
 
 - numeric value
-- unit type
-- conversion logic
-- equality comparison
+- unit (LengthUnit enum)
+- base-unit conversion
+- value-based equality
 
-Each object represents value + unit together, ensuring correctness and type safety.
+Key characteristics:
 
----
+- Immutable
+- Unit-agnostic
+- Null-safe
+- Cross-unit comparable
 
-### 2️ Enum-Based Unit Handling
-
-The LengthUnit enum:
-
-- defines supported units (FEET, INCH)
-- stores conversion factors
-- converts values to a common base unit
-
-Enums eliminate magic strings and prevent invalid units at compile time.
+Equality is determined by converting both values to the base unit and comparing them.
 
 ---
 
-### 3️ Common Base Unit Conversion
+### 2️ LengthUnit (Enum-Based Unit Model)
 
-All comparisons are performed by:
+The `LengthUnit` enum:
 
-- converting values to a common base unit (inch)
-- comparing the converted values
+- defines all supported length units
+- stores conversion factors relative to inches
+- centralizes unit validation and parsing
+- enables easy extension by adding new constants
 
-This enables accurate and consistent cross-unit equality.
+Adding a new unit requires **only one enum entry**.
 
 ---
 
-##  Supported Functionality
+##  Equality Logic
 
-✔ Feet ↔ Feet equality
-✔ Inches ↔ Inches equality
-✔ Feet ↔ Inches equality
-✔ Same-reference equality
-✔ Null-safe comparison
-✔ Type-safe equality checks
+Two quantities are considered equal if:
+
+- they are of the same type (`QuantityLength`)
+- their values, when converted to the base unit, are numerically equal
+
+This supports:
+
+- same-unit equality  
+- cross-unit equality  
+- symmetric and transitive comparisons  
+
+Examples:
+
+- `1 yard == 3 feet`
+- `1 yard == 36 inches`
+- `1 cm == 0.393701 inches`
+
+---
+
+##  Supported Comparisons
+
+✔ Inches ↔ Inches  
+✔ Feet ↔ Feet  
+✔ Yards ↔ Yards  
+✔ Centimeters ↔ Centimeters  
+
+✔ Feet ↔ Inches  
+✔ Yards ↔ Feet  
+✔ Yards ↔ Inches  
+✔ Centimeters ↔ Inches  
+✔ Centimeters ↔ Feet  
+✔ Centimeters ↔ Yards  
+
+✔ Same-reference equality  
+✔ Null-safe comparison  
+✔ Type-safe equality checks  
 
 ---
 
 ##  Application Flow
 
-- User inputs two numeric values and their respective units
-- Unit input is converted into a LengthUnit enum
-- QuantityLength objects are created
-- Values are converted internally to the base unit
-- Equality is evaluated using value-based comparison
-- Result is displayed to the user
+1. User inputs two numeric values and their units  
+2. Unit strings are parsed into `LengthUnit` enum values  
+3. `QuantityLength` objects are created  
+4. Values are converted internally to inches  
+5. Equality is evaluated using value-based comparison  
+6. Result is displayed to the user  
 
 ---
 
 ##  Testing Strategy
 
-Test cases from UC1 and UC2 are conceptually preserved and adapted to the generic model.
+UC4 preserves and extends all tests from UC1–UC3.
 
 Tests validate:
 
 - same-unit equality
 - cross-unit equality
+- multi-step unit conversions
 - inequality for different values
 - null handling
 - same-reference equality
-- different-class comparison
+- backward compatibility
 
-This confirms that refactoring did not break existing behavior.
-
----
-
-##  Forward Compatibility
-
-UC3 prepares the codebase for:
-
-- adding new units with minimal changes
-- implementing quantity arithmetic
-- extending comparison logic
-- scaling the system cleanly
-
-Adding a new unit requires only a new enum constant, with no changes to equality logic.
+All previous test cases continue to pass without modification.
 
 ---
+
+##  Design Benefits Demonstrated in UC4
+
+- **Scalability:** new units added without changing core logic
+- **DRY Principle:** no duplicate conversion or comparison code
+- **Enum Extensibility:** units managed centrally and safely
+- **Backward Compatibility:** existing behavior remains unaffected
+- **Maintainability:** clean, predictable design
