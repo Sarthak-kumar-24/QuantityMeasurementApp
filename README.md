@@ -87,12 +87,12 @@ This enables accurate and consistent cross-unit equality.
 
 ##  Supported Functionality
 
-✔ Feet ↔ Feet equality
-✔ Inches ↔ Inches equality
-✔ Feet ↔ Inches equality
-✔ Same-reference equality
-✔ Null-safe comparison
-✔ Type-safe equality checks
+- ✔ Feet ↔ Feet equality
+- ✔ Inches ↔ Inches equality
+- ✔ Feet ↔ Inches equality
+- ✔ Same-reference equality
+- ✔ Null-safe comparison
+- ✔ Type-safe equality checks
 
 ---
 
