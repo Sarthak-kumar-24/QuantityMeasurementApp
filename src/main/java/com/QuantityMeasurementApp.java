@@ -50,6 +50,16 @@ public class QuantityMeasurementApp {
 		System.out.println("Result: "
 				+ (equalityService.areEqual(firstInch, secondInch) ? "Both are Equal" : "Both are not Equal"));
 
-		scanner.close();
+		   /* ---------- FEET vs INCHES ---------- */
+
+        System.out.println("\nFeet vs Inches Comparison");
+
+        Feet oneFeet = new Feet(1);
+        Inches twelveInches = new Inches(12);
+
+        System.out.println("1 Feet == 12 Inches ? : "
+                + equalityService.areEqual(oneFeet, twelveInches));
+
+        scanner.close();
 	}
 }
