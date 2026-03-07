@@ -1,6 +1,6 @@
 package com.measurement;
 
-/**
+/*
  * Enum representing supported length units.
  * Base unit chosen: INCH
  */
