@@ -7,7 +7,12 @@ public class EqualityService {
 
 	// Generic equality check.
 
-	public boolean areEqual(Object first, Object second) {
-		return first != null && first.equals(second);
-	}
+	 public boolean areEqual(Object first, Object second) {
+
+	        if (first == second) return true;
+
+	        if (first == null || second == null) return false;
+
+	        return first.equals(second);
+	    }
 }
