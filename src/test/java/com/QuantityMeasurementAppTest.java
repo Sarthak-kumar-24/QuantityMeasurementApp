@@ -3,6 +3,7 @@ package com;
 import org.junit.jupiter.api.Test;
 
 import com.measurement.Feet;
+import com.measurement.Inches;
 
 import service.EqualityService;
 
@@ -27,6 +28,32 @@ class QuantityMeasurementAppTest {
 
 		assertFalse(equalityService.areEqual(f1, f2));
 	}
+	
+
+    /* -------- INCHES TESTS -------- */
+
+    @Test
+    void testInchesEquality_SameValue() {
+    	Inches i1= new Inches(12);
+    	Inches i2 = new Inches(12);
+        assertTrue(equalityService.areEqual(i1, i2));
+    }
+
+    @Test
+    void testInchesEquality_DifferentValue() {
+    	Inches i1= new Inches(12);
+    	Inches i2 = new Inches(24);
+        assertFalse(equalityService.areEqual(i1, i2));
+    }
+    
+    /* -------- CROSS UNIT TEST -------- */
+
+    @Test
+    void testFeetToInchesEquality() {
+    	Feet f1 = new Feet(1);
+		Inches i2 = new Inches(12);
+        assertTrue(equalityService.areEqual(f1, i2));
+    }
 
 	@Test
 	void testFeetEquality_NullComparison() {
