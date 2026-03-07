@@ -40,6 +40,13 @@ class QuantityMeasurementAppTest {
 
 		assertTrue(equalityService.areEqual(q1, q2));
 	}
+	@Test
+	void testInchEquality_DifferentValue() {
+	    QuantityLength q1 = new QuantityLength(10.0, LengthUnit.INCH);
+	    QuantityLength q2 = new QuantityLength(20.0, LengthUnit.INCH);
+
+	    assertFalse(equalityService.areEqual(q1, q2));
+	}
 
 	@Test
 	void testCrossUnitEquality_FeetAndInch() {
