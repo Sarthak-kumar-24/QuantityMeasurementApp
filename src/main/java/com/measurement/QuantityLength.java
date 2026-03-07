@@ -15,6 +15,9 @@ public final class QuantityLength {
         if (unit == null) {
             throw new IllegalArgumentException("Unit cannot be null");
         }
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            throw new IllegalArgumentException("Value must be a valid number");
+        }
         this.value = value;
         this.unit = unit;
     }
