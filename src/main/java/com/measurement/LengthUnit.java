@@ -1,6 +1,6 @@
 package com.measurement;
 
-/**
+/*
  * Enum representing supported length units.
  * All conversion factors are defined relative to BASE UNIT = INCHES.
  */
