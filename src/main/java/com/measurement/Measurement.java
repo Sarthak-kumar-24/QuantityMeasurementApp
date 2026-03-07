@@ -11,6 +11,12 @@ public abstract class Measurement {
     protected Measurement(double value) {
         this.value = value;
     }
+    
+    /**
+     * Convert measurement to base unit (inches).
+     */
+    protected abstract double toBaseUnit();
+
 
     /**
      * Common equality logic for all measurements.
@@ -24,10 +30,11 @@ public abstract class Measurement {
 
         if (this == obj) return true;
 
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (obj == null || !(obj instanceof Measurement)) return false;
 
         Measurement other = (Measurement) obj;
-        return Double.compare(this.value, other.value) == 0;
+
+        return Double.compare(this.toBaseUnit(), other.toBaseUnit()) == 0;
     }
 
     @Override
