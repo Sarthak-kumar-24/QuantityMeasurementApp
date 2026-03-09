@@ -6,19 +6,48 @@ import com.measurement.*;
 import service.EqualityService;
 
 /*
- * ========================================================= 
+ * =========================================================
  * Quantity Measurement Application
  * =========================================================
  *
- * This application allows the user to: 1. Compare two quantities (Equality) 2.
- * Add two quantities (Implicit & Explicit unit) 3. Convert a quantity from one
- * unit to another
+ * This console-based application demonstrates the functionality
+ * of the Quantity Measurement system.
  *
- * Supported Categories: - Length (ft, in, yd, cm) - Weight (kg, g, lb) - Volume
- * (l, ml, gal)
+ * Users can perform the following operations:
  *
- * Concepts Used: - Generics - Enums - OOP Principles - Clean Separation of
- * Concerns
+ * 1. Compare two quantities
+ * 2. Add two quantities
+ * 3. Convert quantities between units
+ *
+ * =========================================================
+ * Supported Measurement Categories
+ * =========================================================
+ *
+ * Length      : ft, in, yd, cm
+ * Weight      : kg, g, lb
+ * Volume      : l, ml, gal
+ * Temperature : C, F, K
+ *
+ * =========================================================
+ * UC Evolution Demonstrated
+ * =========================================================
+ *
+ * UC10 : Generic Quantity class using generics
+ * UC11 : Added volume measurement support
+ * UC12 : Introduced arithmetic operations
+ * UC13 : Centralized arithmetic logic
+ * UC14 : Temperature support with restricted arithmetic
+ *
+ * =========================================================
+ * Concepts Used
+ * =========================================================
+ *
+ * - Generics
+ * - Enums
+ * - Interface-based design
+ * - Unit conversion through base units
+ * - Exception handling
+ * - Clean separation of concerns
  */
 public class QuantityMeasurementApp {
 
