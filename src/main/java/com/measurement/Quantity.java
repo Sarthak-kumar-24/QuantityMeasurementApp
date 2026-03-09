@@ -4,35 +4,65 @@ import java.util.Objects;
 import java.util.function.DoubleBinaryOperator;
 
 /*
- * ========================================================= 
- * Generic Immutable Quantity Class 
+ * =========================================================
+ * Generic Immutable Quantity Class
  * =========================================================
  *
- * UC10 : Generic Quantity using Generics 
- * UC11 : Supports Volume (via units)
- * UC12 : Arithmetic operations 
- * UC13 : Centralized arithmetic handling 
- * UC14 : Strict validation & operation control
+ * This class represents a measurable quantity consisting of:
+ *   - numeric value
+ *   - measurement unit
  *
- * Design Highlights: 
- * - Immutable class (thread-safe) 
- * - Strong validation 
- * - No cross-category arithmetic allowed 
+ * Example:
+ *   5 feet
+ *   10 kilograms
+ *   2 liters
+ *
+ * =========================================================
+ * UC Evolution Covered
+ * =========================================================
+ *
+ * UC10 : Introduced generic Quantity class using Generics
+ * UC11 : Extended support to new categories like Volume
+ * UC12 : Added arithmetic operations (add, subtract, divide)
+ * UC13 : Centralized arithmetic handling using strategy pattern
+ * UC14 : Strict validation and operation restrictions
+ *
+ * =========================================================
+ * Design Highlights
+ * =========================================================
+ *
+ * - Immutable class (thread-safe)
+ * - Strong validation for operands
+ * - Prevents cross-category operations
  * - Unit conversion handled via base units
+ * - Supports extensibility for future measurement types
  */
+
 public final class Quantity<U extends IMeasurable> extends Measurement {
 
-	/** Unit associated with the quantity */
+    /**
+     * Unit associated with the quantity.
+     * Example:
+     * FEET, INCHES, KILOGRAM, CELSIUS
+     */
 	private final U unit;
 
-	/*
-	 * ================================================= 
-	 * UC13 – Centralized Arithmetic Strategy 
-	 * =================================================
-	 */
+    /*
+     * =================================================
+     * UC13 – Centralized Arithmetic Strategy
+     * =================================================
+     *
+     * Arithmetic operations are defined using an enum
+     * that encapsulates the mathematical behavior.
+     *
+     * This avoids repeating arithmetic logic in multiple methods.
+     */
+
 	private enum ArithmeticOperation {
 
-		ADD((a, b) -> a + b), SUBTRACT((a, b) -> a - b), DIVIDE((a, b) -> {
+		ADD((a, b) -> a + b), 
+		SUBTRACT((a, b) -> a - b), 
+		DIVIDE((a, b) -> {
 			if (b == 0.0) {
 				throw new ArithmeticException("Divide by zero is not allowed");
 			}
@@ -50,11 +80,16 @@ public final class Quantity<U extends IMeasurable> extends Measurement {
 		}
 	}
 
-	/*
-	 * ================================================= 
-	 * Constructor
-	 * =================================================
-	 */
+    /*
+     * =================================================
+     * Constructor
+     * =================================================
+     *
+     * Creates a new immutable quantity.
+     *
+     * Example:
+     * new Quantity<>(5, LengthUnit.FEET)
+     */
 	public Quantity(double value, U unit) {
 		super(value);
 
@@ -64,20 +99,27 @@ public final class Quantity<U extends IMeasurable> extends Measurement {
 		this.unit = unit;
 	}
 
-	/*
-	 * ================================================= 
-	 * Getter
-	 * =================================================
-	 */
+	  /**
+     * Returns the unit associated with this quantity.
+     */
 	public U getUnit() {
 		return unit;
 	}
 
-	/*
-	 * ================================================= 
-	 * UC13 + UC14 – Operand Validation 
-	 * =================================================
-	 */
+    /*
+     * =================================================
+     * UC13 + UC14 – Operand Validation
+     * =================================================
+     *
+     * Ensures safe arithmetic operations by validating:
+     *
+     * - Operand must not be null
+     * - Cross-category operations are not allowed
+     *   (Example: Length + Weight)
+     * - Operand value must be valid
+     * - Target unit must be provided when required
+     * - Unit must support the requested operation
+     */
 	private void validateOperands(Quantity<U> other, ArithmeticOperation operation, U targetUnit) {
 
 		if (other == null) {
@@ -103,11 +145,19 @@ public final class Quantity<U extends IMeasurable> extends Measurement {
 		unit.validateOperationSupport(operation.name());
 	}
 
-	/*
-	 * ================================================= 
-	 * Base Unit Arithmetic
-	 * =================================================
-	 */
+    /*
+     * =================================================
+     * Base Unit Arithmetic
+     * =================================================
+     *
+     * All arithmetic operations are performed in a
+     * common base unit to ensure consistency.
+     *
+     * Example:
+     * 1 foot + 12 inches
+     *
+     * Convert both to base unit → compute → convert back
+     */
 	private double performBaseArithmetic(Quantity<U> other, ArithmeticOperation operation) {
 
 		// Convert both quantities to base unit
