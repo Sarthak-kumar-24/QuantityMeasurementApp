@@ -1,135 +1,136 @@
-# UC14: Temperature Measurement with Selective Arithmetic Support  
-### and IMeasurable Refactoring
+# UC15: Layered Architecture with Caching and Exception Handling  
+### Controller, Service, Repository and DTO Integration
 
 ---
 
-##  Description
+## Description
 
-UC14 extends the **Quantity Measurement Application** to support **temperature measurements** while preserving correctness and design integrity.
+UC15 enhances the **Quantity Measurement Application** by introducing a **layered architecture** that separates responsibilities across different parts of the system.
 
-Unlike length, weight, and volume, **temperature does not support full arithmetic operations** in a meaningful way. Operations like multiplication and division on absolute temperatures are mathematically invalid, and even addition/subtraction requires special semantic handling.
+The application is refactored into the following layers:
 
-UC14 addresses this by **refactoring the `IMeasurable` interface** to support **selective arithmetic operations**, allowing different measurement categories to explicitly declare which arithmetic operations they support.
+- Controller Layer
+- Service Layer
+- Repository Layer
+- Domain Layer
+- DTO Layer
 
-This use case focuses on **design extensibility and correctness**, not UI expansion.
+UC15 also introduces **in-memory caching** for storing operation history and **custom exception handling** for better error management.
 
----
-
-##  Limitations in UC12 / UC13
-
-Before UC14:
-
-1. All units were assumed to support:
-   - Addition
-   - Subtraction
-   - Division
-2. Arithmetic constraints were:
-   - Not enforced at compile-time
-   - Not enforced at validation time
-3. Temperature units could not be safely added without:
-   - Runtime failures
-   - Duplicate validation logic
-4. `IMeasurable` violated the **Interface Segregation Principle (ISP)**.
+The main objective is to improve **code organization, maintainability, and scalability**.
 
 ---
 
-##  Goals of UC14
+## Limitations in UC14
 
-- Allow **measurement categories with restricted arithmetic support**
-- Refactor `IMeasurable` to:
-  - Provide **default arithmetic support**
-  - Allow **opt-out for specific units**
-- Ensure:
-  - Backward compatibility with UC10–UC13
-  - No changes required in existing test cases
-  - No changes required in the console application
-- Prepare the system for **future temperature input support**
+Before UC15:
+
+1. The console application directly interacted with business logic.
+2. There was **no architectural separation** between layers.
+3. Operation results were **not stored anywhere**.
+4. Error handling was not centralized.
 
 ---
 
-##  Supported Operations by Category
+## Goals of UC15
 
-| Category      | Equality | Conversion | Addition | Subtraction | Division |
-|--------------|----------|------------|----------|-------------|----------|
-| Length       | ✅       | ✅         | ✅       | ✅          | ✅       |
-| Weight       | ✅       | ✅         | ✅       | ✅          | ✅       |
-| Volume       | ✅       | ✅         | ✅       | ✅          | ✅       |
-| Temperature  | ✅       | ✅         | ❌       | ❌          | ❌       |
-
----
-
-# UC14: Temperature Measurement with Selective Arithmetic Support  
-### and IMeasurable Refactoring
+- Introduce **layered architecture**
+- Separate **Controller, Service, and Repository**
+- Implement **in-memory caching for operations**
+- Use **DTO objects for data transfer between layers**
+- Implement **custom exception handling**
+- Improve **testability and maintainability**
 
 ---
 
-##  Description
+## Layered Architecture
 
-UC14 extends the **Quantity Measurement Application** to support **temperature measurements** while preserving correctness and design integrity.
+System Flow:
 
-Unlike length, weight, and volume, **temperature does not support full arithmetic operations** in a meaningful way. Operations like multiplication and division on absolute temperatures are mathematically invalid, and even addition/subtraction requires special semantic handling.
+Application Layer  
+      ↓  
+Controller Layer  
+      ↓  
+Service Layer  
+      ↓  
+Domain Logic (Quantity Engine)  
+      ↓  
+Repository Layer (Cache Storage)
 
-UC14 addresses this by **refactoring the `IMeasurable` interface** to support **selective arithmetic operations**, allowing different measurement categories to explicitly declare which arithmetic operations they support.
-
-This use case focuses on **design extensibility and correctness**, not UI expansion.
-
----
-
-##  Limitations in UC12 / UC13
-
-Before UC14:
-
-1. All units were assumed to support:
-   - Addition
-   - Subtraction
-   - Division
-2. Arithmetic constraints were:
-   - Not enforced at compile-time
-   - Not enforced at validation time
-3. Temperature units could not be safely added without:
-   - Runtime failures
-   - Duplicate validation logic
-4. `IMeasurable` violated the **Interface Segregation Principle (ISP)**.
+Each layer performs a **specific responsibility**, ensuring a clean and modular design.
 
 ---
 
-##  Goals of UC14
+## Repository Cache
 
-- Allow **measurement categories with restricted arithmetic support**
-- Refactor `IMeasurable` to:
-  - Provide **default arithmetic support**
-  - Allow **opt-out for specific units**
-- Ensure:
-  - Backward compatibility with UC10–UC13
-  - No changes required in existing test cases
-  - No changes required in the console application
-- Prepare the system for **future temperature input support**
+UC15 introduces a **repository layer** that stores operation history in memory.
 
----
+Cache structure:
 
-##  Supported Operations by Category
+List<QuantityMeasurementEntity>
 
-| Category      | Equality | Conversion | Addition | Subtraction | Division |
-|--------------|----------|------------|----------|-------------|----------|
-| Length       | ✅       | ✅         | ✅       | ✅          | ✅       |
-| Weight       | ✅       | ✅         | ✅       | ✅          | ✅       |
-| Volume       | ✅       | ✅         | ✅       | ✅          | ✅       |
-| Temperature  | ✅       | ✅         | ❌       | ❌          | ❌       |
+Each stored entry contains:
+
+- operand1  
+- operand2  
+- operation  
+- result  
+- error flag  
+
+The cache acts as a **temporary runtime log** and is cleared when the application stops.
 
 ---
 
-##  What UC14 Does NOT Do
+## DTO Usage
 
-❌ Does not add temperature input to the console app
-❌ Does not change existing menus
-❌ Does not modify previous UC test cases
-❌ Does not introduce UI logic
+UC15 introduces **QuantityDTO** to transfer data between layers safely.
 
-UC14 strictly focuses on core design extensibility.
+DTO contains:
+
+- value  
+- unit  
+
+Example:
+
+QuantityDTO<U extends IMeasurable>
+
+DTOs prevent direct exposure of internal domain classes.
 
 ---
 
-##  Conclusion
+## Exception Handling
 
-UC14 transforms the Quantity Measurement system from a uniform arithmetic model into a capability-aware, extensible architecture.
-It ensures mathematical correctness while maintaining backward compatibility and preparing the system for future growth.
+UC15 introduces a custom exception:
+
+QuantityMeasurementException
+
+The service layer catches internal exceptions (such as validation or arithmetic errors) and converts them into this domain exception for **consistent error handling**.
+
+---
+
+## Example Flow
+
+Example operation:
+
+1 ft + 12 in
+
+Execution flow:
+
+MainApp  
+→ Controller  
+→ Service  
+→ Quantity Engine  
+→ Repository (cache save)  
+→ Result returned
+
+Output:
+
+Quantity(2.0, FEET)
+
+---
+
+## Conclusion
+
+UC15 restructures the application into a **clean layered architecture** with caching and exception handling.
+
+This improves **modularity, maintainability, and scalability**, preparing the system for future enhancements such as persistent storage or REST APIs.
