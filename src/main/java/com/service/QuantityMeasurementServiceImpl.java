@@ -7,6 +7,8 @@ import com.measurement.IMeasurable;
 import com.measurement.Quantity;
 import com.repository.IQuantityMeasurementRepository;
 import com.repository.QuantityMeasurementCacheRepository;
+import com.repository.QuantityMeasurementDatabaseRepository;
+import com.util.DatabaseConfig;
 
 
 /*
@@ -21,6 +23,8 @@ import com.repository.QuantityMeasurementCacheRepository;
  * - Perform operations using Quantity domain logic
  * - Convert result back to DTO
  * - Store operation history in repository
+ * 
+ * UC16 – Service Layer with Repository Selection
  */
 
 public class QuantityMeasurementServiceImpl
@@ -29,7 +33,15 @@ public class QuantityMeasurementServiceImpl
     private final IQuantityMeasurementRepository repository;
 
     public QuantityMeasurementServiceImpl() {
-        this.repository = QuantityMeasurementCacheRepository.getInstance();
+       // this.repository = QuantityMeasurementCacheRepository.getInstance();
+    	
+        String repoType = DatabaseConfig.getRepositoryType();
+
+        if ("database".equalsIgnoreCase(repoType)) {
+            this.repository = new QuantityMeasurementDatabaseRepository();
+        } else {
+            this.repository = QuantityMeasurementCacheRepository.getInstance();
+        }
     }
 
     /*
