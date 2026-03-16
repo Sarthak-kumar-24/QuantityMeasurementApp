@@ -1,45 +1,44 @@
-# UC15: Layered Architecture with Caching and Exception Handling  
-### Controller, Service, Repository and DTO Integration
+# UC16: Database Integration with JDBC for Quantity Measurement Persistence  
+### Controller, Service, Repository and Database Integration
 
 ---
 
 ## Description
 
-UC15 enhances the **Quantity Measurement Application** by introducing a **layered architecture** that separates responsibilities across different parts of the system.
+UC16 enhances the **Quantity Measurement Application** by introducing **persistent database storage using JDBC (Java Database Connectivity)**.
 
-The application is refactored into the following layers:
+Building upon the **layered architecture introduced in UC15**, this use case replaces the in-memory cache repository with a **database-backed repository implementation** called `QuantityMeasurementDatabaseRepository`.
 
-- Controller Layer
-- Service Layer
-- Repository Layer
-- Domain Layer
-- DTO Layer
+The application can now **store and retrieve quantity measurement operation history from a relational database**, enabling long-term persistence, audit tracking, and historical analysis.
 
-UC15 also introduces **in-memory caching** for storing operation history and **custom exception handling** for better error management.
+UC16 also introduces **professional project structure with Maven**, proper package organization, and secure SQL execution using **parameterized queries** to prevent SQL injection.
 
-The main objective is to improve **code organization, maintainability, and scalability**.
+The architecture still supports switching between **in-memory cache storage and database storage** using repository abstraction and dependency injection.
 
 ---
 
-## Limitations in UC14
+## Limitations in UC15
 
-Before UC15:
+Before UC16:
 
-1. The console application directly interacted with business logic.
-2. There was **no architectural separation** between layers.
-3. Operation results were **not stored anywhere**.
-4. Error handling was not centralized.
+1. Operation history was stored only in **in-memory cache**.
+2. Data was **lost when the application stopped or crashed**.
+3. The system could not support **multiple application instances accessing shared data**.
+4. There was **no schema validation or relational constraints**.
+5. Historical data could not be **queried or analyzed using SQL**.
+6. No structured **data persistence mechanism** existed.
 
 ---
 
-## Goals of UC15
+## Goals of UC16
 
-- Introduce **layered architecture**
-- Separate **Controller, Service, and Repository**
-- Implement **in-memory caching for operations**
-- Use **DTO objects for data transfer between layers**
-- Implement **custom exception handling**
-- Improve **testability and maintainability**
+- Introduce **database persistence using JDBC**
+- Replace **in-memory repository with database repository**
+- Store operation history in a **relational database**
+- Implement **parameterized SQL queries for security**
+- Support **schema-based validation and relational integrity**
+- Enable **querying, reporting, and historical analysis**
+- Improve **scalability and concurrent data access**
 
 ---
 
@@ -55,56 +54,80 @@ Service Layer
       ↓  
 Domain Logic (Quantity Engine)  
       ↓  
-Repository Layer (Cache Storage)
+Repository Layer (JDBC Database)
 
-Each layer performs a **specific responsibility**, ensuring a clean and modular design.
+The **Repository Layer now communicates with a relational database using JDBC**, while the rest of the architecture remains unchanged.
+
+Each layer maintains a **single responsibility**, ensuring modular and maintainable code.
 
 ---
 
-## Repository Cache
+## Database Repository
 
-UC15 introduces a **repository layer** that stores operation history in memory.
+UC16 introduces a **JDBC-based repository implementation**:
 
-Cache structure:
+QuantityMeasurementDatabaseRepository
 
-List<QuantityMeasurementEntity>
+Responsibilities include:
 
-Each stored entry contains:
+- Storing operation results in the database  
+- Retrieving stored operation history  
+- Executing parameterized SQL queries  
+- Managing database connections  
+- Ensuring secure and efficient data access
 
-- operand1  
-- operand2  
-- operation  
-- result  
+Each stored database record includes:
+
+- operand1 value  
+- operand1 unit  
+- operand2 value  
+- operand2 unit  
+- operation type  
+- result value  
+- result unit  
 - error flag  
+- timestamp  
 
-The cache acts as a **temporary runtime log** and is cleared when the application stops.
-
----
-
-## DTO Usage
-
-UC15 introduces **QuantityDTO** to transfer data between layers safely.
-
-DTO contains:
-
-- value  
-- unit  
-
-Example:
-
-QuantityDTO<U extends IMeasurable>
-
-DTOs prevent direct exposure of internal domain classes.
+This enables **complete tracking of all measurement operations performed by the application**.
 
 ---
 
-## Exception Handling
+## Database Schema
 
-UC15 introduces a custom exception:
+UC16 introduces a relational database table to store measurement operations.
 
-QuantityMeasurementException
+Example table structure:
 
-The service layer catches internal exceptions (such as validation or arithmetic errors) and converts them into this domain exception for **consistent error handling**.
+QuantityMeasurementHistory
+
+Columns:
+
+- id (Primary Key)  
+- operand1_value  
+- operand1_unit  
+- operand2_value  
+- operand2_unit  
+- operation  
+- result_value  
+- result_unit  
+- error_flag  
+- created_at  
+
+The schema ensures **data integrity, validation, and structured storage**.
+
+---
+
+## JDBC Features Used
+
+UC16 implements several JDBC best practices:
+
+- **PreparedStatement** for parameterized SQL queries  
+- **Connection management using JDBC drivers**  
+- **Transaction handling for consistent writes**  
+- **Database schema initialization scripts**  
+- **Secure SQL execution to prevent SQL injection**
+
+These practices make the application **secure, reliable, and production-ready**.
 
 ---
 
@@ -120,8 +143,15 @@ MainApp
 → Controller  
 → Service  
 → Quantity Engine  
-→ Repository (cache save)  
+→ Repository (JDBC database insert)  
 → Result returned
+
+Database Entry Stored:
+
+operand1 = 1 FEET  
+operand2 = 12 INCH  
+operation = ADD  
+result = 2 FEET  
 
 Output:
 
@@ -131,6 +161,8 @@ Quantity(2.0, FEET)
 
 ## Conclusion
 
-UC15 restructures the application into a **clean layered architecture** with caching and exception handling.
+UC16 upgrades the **Quantity Measurement Application** by integrating **JDBC-based database persistence** into the layered architecture introduced in UC15.
 
-This improves **modularity, maintainability, and scalability**, preparing the system for future enhancements such as persistent storage or REST APIs.
+This enhancement enables **reliable long-term storage of measurement operations**, improves **scalability**, and supports **data analysis and reporting**.
+
+The system is now better prepared for **enterprise-level features**, including advanced analytics, distributed systems, and integration with external services.
