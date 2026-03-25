@@ -128,6 +128,7 @@ public class QuantityMeasurementApplication {
 
         log.info("Quantity Measurement API Started");
         log.info("Swagger UI: http://localhost:8080/swagger-ui.html");
+        log.info("http://localhost:8080/swagger-ui/index.html");
         log.info("Server running at: http://localhost:8080");
     }
 }
