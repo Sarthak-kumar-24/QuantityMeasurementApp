@@ -12,6 +12,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 /*
  * =========================================================
@@ -19,11 +25,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * =========================================================
  *
  * This class configures:
+ * - CORS (allows React frontend on port 5173 to call this backend)
  * - Authentication (login)
  * - Authorization (who can access what)
  * - JWT filter integration
- * 
- * Client (Swagger/Postman)
+ *
+ * Client (React @ localhost:5173)
+ *       |
+ *  CORS filter (allows cross-origin requests)
  *       |
  *  Request hits SecurityFilterChain
  *       |
@@ -48,6 +57,54 @@ public class SecurityConfig {
      */
     @Autowired
     private JwtFilter jwtFilter;
+
+    /*
+     * =========================================================
+     * CORS CONFIGURATION
+     * =========================================================
+     *
+     * Allows the React frontend (running on localhost:5173 via Vite)
+     * to make HTTP requests to this Spring Boot backend (localhost:8080).
+     *
+     * Without this, the browser blocks cross-origin requests.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        // Allow React dev server origins
+        config.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",  // Vite default port
+                "http://localhost:3000",  // CRA default port (fallback)
+                "http://127.0.0.1:5173"
+        ));
+
+        // Allow all standard HTTP methods
+        config.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+        ));
+
+        // Allow Authorization header (for JWT) and Content-Type
+        config.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "X-Requested-With"
+        ));
+
+        // Allow credentials (cookies, Authorization headers)
+        config.setAllowCredentials(true);
+
+        // Cache pre-flight response for 1 hour
+        config.setMaxAge(3600L);
+
+        // Expose Authorization header to frontend
+        config.setExposedHeaders(List.of("Authorization"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config); // Apply to ALL endpoints
+        return source;
+    }
 
     /*
      * =========================================================
@@ -84,6 +141,7 @@ public class SecurityConfig {
      * =========================================================
      *
      * This defines:
+     * - CORS is enabled
      * - Which APIs are public
      * - Which APIs require authentication
      * - Where JWT filter should run
@@ -93,7 +151,11 @@ public class SecurityConfig {
 
         http
         /*
-         * Disable CSRF (not needed for REST APIs)
+         * Enable CORS using the bean defined above
+         */
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        /*
+         * Disable CSRF (not needed for stateless REST APIs using JWT)
          */
         .csrf(csrf -> csrf.disable())
         /*
@@ -101,24 +163,27 @@ public class SecurityConfig {
          */
         .authorizeHttpRequests(auth -> auth
                 /*
-                 * Public APIs (no authentication needed)
+                 * Public APIs (no authentication needed):
+                 * - /auth/** -> login & register endpoints
+                 * - /swagger-ui/** -> Swagger UI
+                 * - /v3/api-docs/** -> OpenAPI docs
                  */
                 .requestMatchers(
-                        "/auth/**",          // login & register
-                        "/swagger-ui/**",    // Swagger UI
-                        "/v3/api-docs/**"    // API docs
+                        "/auth/**",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**"
                 ).permitAll()
                 /*
-                 * All other APIs require authentication
+                 * All other APIs require a valid JWT token
                  */
                 .anyRequest().authenticated()
         );
 
         /*
-         * Add JWT filter before Spring's default authentication filter
+         * Add JWT filter BEFORE Spring's default authentication filter.
          *
-         * This ensures:
-         * JWT is checked BEFORE request reaches controller
+         * This ensures JWT is validated on every request
+         * before it reaches the controller.
          */
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
