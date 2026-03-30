@@ -1,4 +1,4 @@
-package com.quantitymeasurement.config;
+package src.main.java.com.quantitymeasurement.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
