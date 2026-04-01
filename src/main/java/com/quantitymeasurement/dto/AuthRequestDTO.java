@@ -60,11 +60,13 @@ public class AuthRequestDTO {
      * - Minimum 3 characters
      * - Maximum 20 characters
      */
-    @NotBlank(message = "Username cannot be empty")
-    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
-    private String username;
+    @NotBlank(message = "Email cannot be empty")
+    @Size(min = 3, max = 20, message = "email must be between 7 and 20 characters")
+    private String email;
     
-    
+    @NotBlank
+    private String username; 
+
     /*
      * Password field
      *
@@ -77,4 +79,7 @@ public class AuthRequestDTO {
     @NotBlank(message = "Password cannot be empty")
     @Size(min = 4, message = "Password must be at least 4 characters long")
     private String password;
+    
+    
+    private String phoneNumber;
 }
