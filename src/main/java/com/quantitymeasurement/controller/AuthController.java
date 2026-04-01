@@ -98,7 +98,7 @@ public class AuthController {
     public ResponseEntity<String> register(@RequestBody AuthRequestDTO request) {
 
     	// Step 1: Check if username already exists in DB
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body("User already exists!");
         }
 
@@ -106,6 +106,8 @@ public class AuthController {
         User user = new User();
         // Set username from request
         user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
         // Encrypt password before saving (VERY IMPORTANT)
         user.setPassword(passwordEncoder.encode(request.getPassword())); // encrypt password
         // Assign default role
@@ -158,7 +160,7 @@ public class AuthController {
          */
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
+                        request.getEmail(),
                         request.getPassword()
                 )
         );
@@ -167,7 +169,7 @@ public class AuthController {
          * Step 2: If authentication successful,
          * generate JWT token
          */
-        String token = jwtUtil.generateToken(request.getUsername());
+        String token = jwtUtil.generateToken(request.getEmail());
         
         /*
          * Step 3: Return token to client
