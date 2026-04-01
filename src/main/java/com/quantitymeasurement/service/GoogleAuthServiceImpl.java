@@ -24,9 +24,11 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    private static final String CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID";
+    @org.springframework.beans.factory.annotation.Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String CLIENT_ID;
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public AuthResponseDTO authenticateWithGoogle(String idToken) {
 
         try {
@@ -47,18 +49,20 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
             String email = payload.getEmail();
 
-            // 🔥 Check DB
-            User user = userRepository.findByUsername(email)
+            //  Check DB
+            // Inside authenticateWithGoogle...
+            User user = userRepository.findByEmail(email)
                     .orElseGet(() -> {
                         User newUser = new User();
-                        newUser.setUsername(email);
-                        newUser.setPassword("GOOGLE_USER"); // dummy
+                        newUser.setUsername(email); // Or extract name from Google payload
+                        newUser.setEmail(email);
+                        newUser.setPassword("GOOGLE_USER");
                         newUser.setRole("ROLE_USER");
                         return userRepository.save(newUser);
                     });
 
-            //  Generate JWT
-            String jwt = jwtUtil.generateToken(user.getUsername());
+            // CRUCIAL: Pass the email to generate the token
+            String jwt = jwtUtil.generateToken(user.getEmail()); 
 
             return new AuthResponseDTO(jwt);
 
