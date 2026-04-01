@@ -1,7 +1,6 @@
 package com.quantitymeasurement;
 
 
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -107,7 +106,7 @@ import org.slf4j.LoggerFactory;
  * @EnableAutoConfiguration
  * @ComponentScan
  */
-public class QuantityMeasurementApplication {
+public class QuantityMeasurementApplication{
 
     public static void main(String[] args) {
 
