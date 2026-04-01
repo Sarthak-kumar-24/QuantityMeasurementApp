@@ -55,41 +55,18 @@ public class CustomUserDetailsService implements UserDetailsService {
      *  UsernameNotFoundException ?
      *  - It is a prebuilt exception class provided by Spring Security.
      */
+    
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        // Search strictly by EMAIL
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-
-        /*
-         * Step 1: Fetch user from database
-         * 
-         * User implements UserDetails interface of spring security
-         */
-        User user = repository
-        		.findByUsername(username)
-                .orElseThrow(
-                		() -> new UsernameNotFoundException("User not found"));
-
-        /*
-         * Step 2: Convert our User entity -> Spring Security User
-         *
-         * Spring Security requires:
-         * - username
-         * - password
-         * - roles/authorities
-         */
+        // We return the email as the first parameter (the 'username' in Spring Security terms)
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(), // username
-                user.getPassword(), // encrypted password
-                /* It represents a role or permission
-                 * 
-                 *  Spring expects: Collection<? extends GrantedAuthority>
-                 *  So you convert your role string into: new SimpleGrantedAuthority("ROLE_USER")
-                 *  
-                 *  Why List.of(...)?
-                 *  - Because Spring expects a collection of roles
-                 *  
-                 */
-                List.of(new SimpleGrantedAuthority(user.getRole()))  // role
+                user.getEmail(), 
+                user.getPassword(),
+                List.of(new SimpleGrantedAuthority(user.getRole()))
         );
     }
 }

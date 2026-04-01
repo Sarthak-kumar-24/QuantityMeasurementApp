@@ -105,19 +105,19 @@ public class JwtFilter extends OncePerRequestFilter {
         	token = authHeader.substring(7);
         	
             // Extract username from token
-            username = jwtUtil.extractUsername(token);
+        	username = jwtUtil.extractUsername(token);
         }
 
         
         /*
-         * Step 3: If username exists AND user is not already authenticated
+         * Step 3: If email exists AND user is not already authenticated
          */
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             /*
              * Load user details from database
              */
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        	UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             
             /*
